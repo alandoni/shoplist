@@ -56,11 +56,13 @@ export default class NewListScreen extends AbstractRequestScreen {
 		if (this.state.id) {
 			return DataManager.getShopListById(this.state.id);
 		}
-		return Promise.resolve([]);
+		return Promise.resolve(null);
 	}
 
 	finishedRequestingData(data) {
-		this.setState({name: data.name, products: data.products, refresh: !this.state.refresh});
+		if (data) {
+			this.setState({name: data.name, products: data.products, refresh: !this.state.refresh});
+		}
 	}
 
 	saveShopList = () => {
@@ -69,6 +71,8 @@ export default class NewListScreen extends AbstractRequestScreen {
 				console.log('saved');
 				this.props.navigation.state.params.onBack(shopList);
 				this.props.navigation.goBack();
+			}).catch((error) => {
+				this.setState({error, isLoading: false});
 			});
 		});
 	}
@@ -84,7 +88,7 @@ export default class NewListScreen extends AbstractRequestScreen {
 	}
 
 	addProduct = (product) => {
-		const products = this.state.products;
+		const { products } = this.state;
 		products.push(product);
 		this.setState({products, refresh: !this.state.refresh});
 	}
@@ -140,7 +144,14 @@ export default class NewListScreen extends AbstractRequestScreen {
 					keyExtractor={(item) => item.id}
 					style={defaultStyles.fullHeght}
 				/>
-				<FloatingActionButton onPress={() => navigate('SearchProduct', {backTo: 'NewListScreen', onBack: this.addProduct }) } />
+				<FloatingActionButton onPress={() => {
+					navigate('SearchProduct', 
+					{
+						backTo: 'NewListScreen', 
+						onBack: this.addProduct
+					}) 
+				}}
+				/>
 			</View>
 		);
 	}

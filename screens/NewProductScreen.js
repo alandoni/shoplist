@@ -1,7 +1,8 @@
 import React from 'react';
-import { StyleSheet, TextInput, View, Button, ActivityIndicator } from 'react-native';
+import { StyleSheet, TextInput, Text, View, Button, ActivityIndicator, Picker } from 'react-native';
 import DataManager from '../controllers/DataManager';
 import AbstractRequestScreen from './AbstractRequestScreen';
+import defaultStyles from '../styles';
 
 export default class NewProductScreen extends AbstractRequestScreen {
 	static navigationOptions = ({ navigation }) => {
@@ -17,9 +18,17 @@ export default class NewProductScreen extends AbstractRequestScreen {
 	};
 
 	componentDidMount() {
+		super.componentDidMount();
 		this.props.navigation.setParams({ saveProduct: this.saveProduct });
 		this.setState({id: this.props.navigation.getParam('id', null)});
-		super.componentDidMount();
+	}
+
+	requestData() {
+		return DataManager.getAllCategories();
+	}
+
+	finishedRequestingData(data) {
+		this.setState({category: data[0]});
 	}
 
 	saveProduct = () => {
@@ -27,6 +36,8 @@ export default class NewProductScreen extends AbstractRequestScreen {
 			return this.saveOrUpdate().then((product) => {
 				this.props.navigation.state.params.onBack(product);
 				this.props.navigation.goBack();
+			}).catch((error) => {
+				this.setState({error, isLoading: false});
 			});
 		});
 	}
@@ -37,13 +48,13 @@ export default class NewProductScreen extends AbstractRequestScreen {
 				this.props.id,
 				this.state.name,
 				this.state.value,
-				this.state.category,
+				this.state.category.id,
 				this.state.notes);
 		} else {
 			return DataManager.saveProduct(
 				this.state.name,
 				this.state.value,
-				this.state.category,
+				this.state.category.id,
 				this.state.notes);
 		}
 	}
@@ -60,6 +71,13 @@ export default class NewProductScreen extends AbstractRequestScreen {
 				</View>
 			);
 		}
+		if (this.state.error) {
+			return (
+				<View style={[defaultStyles.container, defaultStyles.horizontal]}>
+					<Text>{this.state.error}</Text>
+				</View>
+			);
+		}
 		return (
 			<View>
 				{this.props.id ? 
@@ -70,16 +88,18 @@ export default class NewProductScreen extends AbstractRequestScreen {
 					onChangeText={(text) => { this.setState({name: text}) }}
 					value={this.state.name}
 				/>
-				<TextInput 
+				<TextInput
 					placeholder="Valor"
 					onChangeText={(text) => { this.setState({value: text}) }}
 					value={this.state.value}
 				/>
-				<TextInput 
-					placeholder="Categoria"
-					onChangeText={(text) => { this.setState({category: text}) }}
-					value={this.state.category}
-				/>
+				<Picker
+					selectedValue={this.state.category}
+					onValueChange={(category) => this.setState({category})}>
+					{this.state.data.map((category) => {
+						return <Picker.Item label={category.name} value={category} key={category.id}/>
+					})}
+				</Picker>
 				<Button title="Nova Categoria" onPress={this.newCategory} />
 				<TextInput 
 					placeholder="Observação"

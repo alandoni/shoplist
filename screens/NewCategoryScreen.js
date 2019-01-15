@@ -32,6 +32,8 @@ export default class NewCategoryScreen extends AbstractRequestScreen {
 			this.saveOrUpdate().then((Category) => {
 				this.props.navigation.state.params.onBack(Category);
 				this.props.navigation.goBack();
+			}).catch((error) => {
+				this.setState({error, isLoading: false});
 			});
 		});
 	}

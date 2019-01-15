@@ -1,13 +1,14 @@
-import { ProductController, Product } from "./ProductController";
+import ProductsController from "./ProductsController";
+import CategoriesController from "./CategoriesController";
 
-products = [{
-    name: 'Roupa', value: 'R$ 3,50', id: '1', amount: '2' , totalValue: 'R$ 7,00'
-
-},
-{
-    name: 'Sapato', value: 'R$ 4,00', id: '2', amount: '1', totalValue: 'R$ 4,00'
-},];
-categories = [];
+products = [
+    {name: 'Roupa', value: 'R$ 3,50', id: '1', amount: '2' , totalValue: 'R$ 7,00'},
+    {name: 'Sapato', value: 'R$ 4,00', id: '2', amount: '1', totalValue: 'R$ 4,00'},
+];
+categories = [
+    {name: 'Casa', id: 1},
+    {name: 'Roupa', id: 2},
+];
 shopLists = [{
     name: 'Shopping', products, id: '1', totalValue: 'R$ 7,00'
 }];
@@ -144,57 +145,61 @@ export default class DataManager {
     // Products
 
     static getAllProducts() {
-        return ProductController.selectAll();
+        return new ProductsController().selectAll();
     }
 
     static getProductById(id) {
-        return ProductController.getById(products, id)
+        return new ProductsController().getById(products, id)
     }
 
     static searchProductByName(name) {
-        return ProductController.selectByName(products, name);
+        return new ProductsController().selectByName(products, name);
     }
 
     static saveProduct(name, value, notes, category) {
-        const product = new Product(name, notes, value, category);
-        return ProductController.insert(product);
+        const product = { name, notes, value, category };
+        return new ProductsController().insert(product);
     }
 
-    static updateProduct(id, name, value, notes, categoryId) {
-        const product = { name, value, notes, category: categoryId };
-        return ListManipulator.update(products, id, product)
+    static updateProduct(id, name, value, notes, category) {
+        const product = { name, value, notes, category: category };
+        return new ProductsController().updateById(products, id, product)
     }
 
     static removeProduct(id) {
-        return ListManipulator.remove(products, id);
+        return new ProductsController().delete(id);
+    }
+
+    static removeAllProducts() {
+        return new ProductsController().deleteAll();
     }
 
     // Categories
 
     static getAllCategories() {
-        return ListManipulator.getAll(categories);
+        return new CategoriesController().getAll();
     }
 
     static getCategoryById(id) {
-        return ListManipulator.getById(categories, id)
+        return new CategoriesController().getById(id)
     }
 
     static searchCategoryByName(name) {
-        return ListManipulator.searchByName(categories, name);
+        return new CategoriesController().searchByName(name);
     }
 
     static saveCategory(name) {
         const category = { name };
-        return ListManipulator.save(categories, category);
+        return new CategoriesController().insert(category);
     }
 
     static updateCategory(id, name) {
         const category = { name };
-        return ListManipulator.update(categories, id, category)
+        return new CategoriesController().updateById(id, category)
     }
 
     static removeCategory(id) {
-        return ListManipulator.remove(categories, id);
+        return new CategoriesController().deleteById(id);
     }
 
     // Products in Shop Lists

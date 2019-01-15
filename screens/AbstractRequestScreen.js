@@ -31,7 +31,7 @@ export default class AbstractRequestScreen extends React.Component {
     }
     
     requestData() {
-
+        return null;
     }
 
     finishedRequestingData(data) {

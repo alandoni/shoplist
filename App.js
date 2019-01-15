@@ -6,28 +6,29 @@ import NewListScreen from './screens/NewListScreen';
 import SearchProductScreen from './screens/SearchProductScreen';
 import BuyActionScreen from './screens/BuyActionScreen';
 import NewCategoryScreen from './screens/NewCategoryScreen';
-
 import { MenuProvider } from 'react-native-popup-menu';
+import ProductsController from './controllers/ProductsController';
+import CategoriesController from './controllers/CategoriesController';
 
 const AppNavigator = createStackNavigator(
   {
     Home: {
-      screen: HomeScreen
+      screen: HomeScreen,
     },
     NewProduct: {
-      screen: NewProductScreen
+      screen: NewProductScreen,
     },
     NewList: {
-      screen: NewListScreen
+      screen: NewListScreen,
     },
     NewCategory: {
-      screen: NewCategoryScreen
+      screen: NewCategoryScreen,
     },
     SearchProduct: {
-      screen: SearchProductScreen
+      screen: SearchProductScreen,
     },
     BuyAction: {
-      screen: BuyActionScreen
+      screen: BuyActionScreen,
     }
   },
   {
@@ -41,11 +42,31 @@ const AppNavigator = createStackNavigator(
       },
     },
   }
-);
+)
 
 const AppContainer = createAppContainer(AppNavigator);
 
 export default class App extends React.Component {
+
+  componentDidMount() {
+    /*const productsController = new ProductsController();
+    productsController.dropTable();
+
+    const categoriesController = new CategoriesController();
+    categoriesController.dropTable();
+
+    categoriesController.createTable().then(() => {
+      return productsController.createTable();
+    }).then(() => {
+      return categoriesController.insert({name: 'Casa'});
+    }).then((category) => {
+        productsController.insert({name: 'Arroz', value: 4.99, notes: 'OBS', category: category[0].id});
+        return categoriesController.insert({name: 'Higiene'});
+    }).then((category) => {
+        productsController.insert({name: 'Sabonete', value: 1.19, notes: 'OBS teste', category: category[0].id});
+    });*/
+  }
+
   render() {
     return (
       <MenuProvider>

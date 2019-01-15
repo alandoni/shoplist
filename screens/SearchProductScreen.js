@@ -59,9 +59,11 @@ export default class SearchProductScreen extends AbstractRequestScreen {
 	}
 
 	renderItem({item}) {
+		console.log(item);
 		return (
 			<TouchableOpacity onPress={() => this.selectItem(item)} >
-				<Text style={styles.item}>{item.name}</Text>
+				<Text style={styles.item}>{item.name} - </Text>
+				<Text style={styles.item}>{item.value}</Text>
 			</TouchableOpacity>
 		)
 	}
@@ -77,7 +79,7 @@ export default class SearchProductScreen extends AbstractRequestScreen {
 		if (this.state.error) {
 			return (
 				<View style={[styles.container, styles.horizontal]}>
-					<Text>this.state.error</Text>
+					<Text>{this.state.error}</Text>
 				</View>
 			);
 		}
