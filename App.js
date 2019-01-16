@@ -4,7 +4,7 @@ import HomeScreen from './screens/HomeScreen';
 import NewProductScreen from './screens/NewProductScreen';
 import NewListScreen from './screens/NewListScreen';
 import SearchProductScreen from './screens/SearchProductScreen';
-import BuyActionScreen from './screens/BuyActionScreen';
+import OrderScreen from './screens/OrderScreen';
 import NewCategoryScreen from './screens/NewCategoryScreen';
 import { MenuProvider } from 'react-native-popup-menu';
 import ProductsController from './controllers/ProductsController';
@@ -27,8 +27,8 @@ const AppNavigator = createStackNavigator(
     SearchProduct: {
       screen: SearchProductScreen,
     },
-    BuyAction: {
-      screen: BuyActionScreen,
+    OrderAction: {
+      screen: OrderScreen,
     }
   },
   {

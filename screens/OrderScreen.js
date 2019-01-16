@@ -6,10 +6,10 @@ import {
 	MenuOption,
 	MenuTrigger,
 } from 'react-native-popup-menu';
-import { FloatingActionButton } from '../custom-views-helper';
+import { FloatingActionButton } from '../utils/custom-views-helper';
 import AbstractRequestScreen from './AbstractRequestScreen';
 import DataManager from '../controllers/DataManager';
-import defaultStyles from '../styles';
+import defaultStyles from '../utils/styles';
 
 const styles = StyleSheet.create({
   container: {
@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
   },
 })
 
-export default class BuyActionScreen extends AbstractRequestScreen {
+export default class OrderScreen extends AbstractRequestScreen {
 	static navigationOptions = ({ navigation }) => {
 		return {
 			title: 'Comprando',

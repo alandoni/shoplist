@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, TouchableHighlight, View, Text, TextInput, Button, FlatList, ActivityIndicator } from 'react-native';
-import { FloatingActionButton } from './../custom-views-helper';
+import { FloatingActionButton } from '../utils/custom-views-helper';
 
 import {
 	Menu,
@@ -10,7 +10,7 @@ import {
 } from 'react-native-popup-menu';
 import DataManager from '../controllers/DataManager';
 import AbstractRequestScreen from './AbstractRequestScreen';
-import defaultStyles from '../styles';
+import defaultStyles from '../utils/styles';
 
 const styles = StyleSheet.create({
   container: {
@@ -87,13 +87,29 @@ export default class NewListScreen extends AbstractRequestScreen {
 		}
 	}
 
-	addProduct = (product) => {
+	newProduct = () => {
+		const { navigate } = this.props.navigation;
+		navigate('SearchProduct', {
+			backTo: 'NewListScreen', 
+			onBack: this.addProductToTheList
+		});
+	}
+
+	addProductToTheList = (product) => {
 		const { products } = this.state;
 		products.push(product);
 		this.setState({products, refresh: !this.state.refresh});
 	}
 
-	renderItem({item}) {
+	editAmount = (item) => {
+		alert('NOT YET IMPLEMENTED');
+	}
+
+	deleteItem = (item) => {
+		alert('NOT YET IMPLEMENTED');
+	}
+
+	renderItem = ({item}) => {
 		return (
 			<TouchableHighlight>
 				<View>
@@ -106,9 +122,8 @@ export default class NewListScreen extends AbstractRequestScreen {
 						<Text>...</Text>
 					</MenuTrigger>
 					<MenuOptions>
-						<MenuOption onSelect={() => alert(`Editar Quantidade`)} text='Editar Quantidade' />
-						<MenuOption onSelect={() => alert(`Editar Produto`)} text='Editar Produto' />
-						<MenuOption onSelect={() => alert(`Remover da Lista`)} >
+						<MenuOption onSelect={() => this.editAmount(item)} text='Editar Quantidade' />
+						<MenuOption onSelect={() => this.deleteItem(item)} >
 							<Text style={{color: 'red'}}>Excluir</Text>
 						</MenuOption>
 					</MenuOptions>
@@ -119,7 +134,6 @@ export default class NewListScreen extends AbstractRequestScreen {
 	}
 
 	render() {
-		const { navigate } = this.props.navigation;
 		if (this.state.isLoading) {
 			return (
 				<View style={[styles.container, styles.horizontal]}>
@@ -140,18 +154,11 @@ export default class NewListScreen extends AbstractRequestScreen {
 				<FlatList
 					data={this.state.products}
 					extraData={this.state.refresh}
-					renderItem={this.renderItem.bind(this)}
+					renderItem={this.renderItem}
 					keyExtractor={(item) => item.id}
 					style={defaultStyles.fullHeght}
 				/>
-				<FloatingActionButton onPress={() => {
-					navigate('SearchProduct', 
-					{
-						backTo: 'NewListScreen', 
-						onBack: this.addProduct
-					}) 
-				}}
-				/>
+				<FloatingActionButton onPress={this.searchProduct} />
 			</View>
 		);
 	}

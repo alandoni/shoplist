@@ -13,10 +13,10 @@ import {
 	MenuOption,
 	MenuTrigger,
 } from 'react-native-popup-menu';
-import { FloatingActionButton } from './../custom-views-helper';
+import { FloatingActionButton } from '../utils/custom-views-helper';
 import DataManager from '../controllers/DataManager';
 import AbstractRequestScreen from './AbstractRequestScreen';
-import defaultStyles from './../styles';
+import defaultStyles from '../utils/styles';
 
 const styles = StyleSheet.create({
   item: {
@@ -52,10 +52,23 @@ export default class HomeScreen extends AbstractRequestScreen {
 		this.props.navigation.navigate('NewList', { onBack: () => this.request() });
 	}
 
-	renderItem = ({item}) => {
+	startOrder = (item) => {
 		const { navigate } = this.props.navigation;
+		navigate('Order', {name: item.name, id: item.id});
+	}
+
+	editList = (item) => {
+		const { navigate } = this.props.navigation;
+		navigate('NewList', {name: item.name, id: item.id})
+	}
+
+	removeList = (item) => {
+		alert('NOT YET IMPLEMENTED');
+	}
+
+	renderItem = ({item}) => {
 		return (
-			<TouchableHighlight onPress={() => navigate('BuyAction', {name: item.name, id: item.id})}>
+			<TouchableHighlight onPress={() => this.startOrder(item)}>
 				<View>
 					<Text>{item.name} - </Text>
 					<Text>{item.totalValue}</Text>
@@ -64,8 +77,8 @@ export default class HomeScreen extends AbstractRequestScreen {
 							<Text>...</Text>
 						</MenuTrigger>
 						<MenuOptions>
-							<MenuOption onSelect={() => navigate('NewList', {name: item.name, id: item.id})} text='Editar' />
-							<MenuOption onSelect={() => alert(`Excluir`)} >
+							<MenuOption onSelect={() => this.editList(item)} text='Editar' />
+							<MenuOption onSelect={() => this.removeList(item)} >
 								<Text style={{color: 'red'}}>Excluir</Text>
 							</MenuOption>
 						</MenuOptions>

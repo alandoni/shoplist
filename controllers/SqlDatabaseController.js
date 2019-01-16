@@ -26,6 +26,8 @@ const FROM = 'FROM';
 const GROUP_BY = 'GROUP BY';
 const ORDER_BY = 'ORDER BY';
 const DELETE = 'DELETE FROM';
+const INNER_JOIN = 'INNER JOIN';
+const ON = 'ON';
 
 class FieldDescriptor {
 	type;
@@ -127,7 +129,7 @@ class SqlDatabaseController {
 		})
 	}
 
-	static select(tableName, whereCondition, params, orderBy, groupBy, fields) {
+	static select(tableName, whereCondition, params, innerJoin, orderBy, groupBy, fields) {
 		let fieldsString = '';
 		if (fields) {
 			for (const field of fields) {
@@ -149,7 +151,11 @@ class SqlDatabaseController {
 		if (whereCondition) {
 			whereString = `${WHERE} (${whereCondition})`;
 		}
-		const query = `${SELECT} ${fieldsString} ${FROM} ${tableName} ${whereString} ${orderByString} ${groupByString}`;
+		let innerJoinString = '';
+		if (innerJoin) {
+			innerJoinString = `${INNER_JOIN} ${innerJoin.foreignTableName} ${ON} ${tableName}.${innerJoin.field} = ${innerJoin.foreignTableName}.${innerJoin.foreignField};`;
+		}
+		const query = `${SELECT} ${fieldsString} ${FROM} ${tableName} ${innerJoinString} ${whereString} ${orderByString} ${groupByString}`;
 		console.log(query);
 
 		let result = null;

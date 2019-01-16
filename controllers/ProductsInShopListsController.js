@@ -32,4 +32,20 @@ export default class ProductsInShopListsController extends GenericSqlController 
 			return product;
 		});
 	}
+	
+	selectAll() {
+		return SqlDatabaseController.select(this.getTableName(), null, null, this.getForeignKeysDescriptors()[1]).then(this.processData);
+	}
+
+	select(condition, params) {
+		return SqlDatabaseController.select(this.getTableName(), condition, params, this.getForeignKeysDescriptors()[1]);
+	}
+
+	selectById(id) {
+		return SqlDatabaseController.select(this.getTableName(), `id = ?`, [id], this.getForeignKeysDescriptors()[1]).then(this.processData);
+	}
+
+	selectByName(name) {
+		return SqlDatabaseController.select(this.getTableName(), `name LIKE %?%`, [name], this.getForeignKeysDescriptors()[1]).then(this.processData);
+	}
 }

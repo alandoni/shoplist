@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, FlatList, Text, TextInput, Button, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { FloatingActionButton } from '../custom-views-helper';
-import defaultStyles from '../styles';
+import { FloatingActionButton } from '../utils/custom-views-helper';
+import defaultStyles from '../utils/styles';
 import AbstractRequestScreen from './AbstractRequestScreen';
 import DataManager from '../controllers/DataManager';
 
@@ -58,8 +58,7 @@ export default class SearchProductScreen extends AbstractRequestScreen {
 		this.props.navigation.goBack();
 	}
 
-	renderItem({item}) {
-		console.log(item);
+	renderItem = ({item}) => {
 		return (
 			<TouchableOpacity onPress={() => this.selectItem(item)} >
 				<Text style={styles.item}>{item.name} - </Text>
@@ -87,13 +86,13 @@ export default class SearchProductScreen extends AbstractRequestScreen {
 			<View style={defaultStyles.fullHeght}>
 				<TextInput 
 					placeholder="Procurar produto"
-					onChangeText={(text) => { this.searchProduct(text) }}
+					onChangeText={this.searchProduct}
 					value={this.state.text}
 				/>
 				<FlatList
 					data={this.state.data}
 					extraData={this.state.refresh}
-					renderItem={this.renderItem.bind(this)}
+					renderItem={this.renderItem}
 					keyExtractor={(item) => item.id}
 					style={defaultStyles.fullHeght}
 				/>
