@@ -58,6 +58,37 @@ export default class SearchProductScreen extends AbstractRequestScreen {
 		this.props.navigation.goBack();
 	}
 
+	removeProductWithConfirmation = (item) => {
+		Alert.alert(
+			'Atenção!',
+			'Tem certeza que quer excluir esse produto? (Isso afetará as listas de produtos)',
+			[
+				{
+					text: 'Excluir',
+					onPress: () => {
+						this.deleteProduct(item);
+					},
+				},
+				{
+					text: 'Cancelar',
+				},
+			],
+		);
+	}
+
+	deleteProduct = (item) => {
+		this.setState({isLoading: true}, () => {
+			return DataManager.removeProduct(item.id).then(() => {
+				const list = this.state.data;
+				return list.filter((value) => {
+					return value.id !== item.id;
+				});
+			}).then((newList) => {
+				this.setState({isLoading: false, data: newList, refresh: !this.state.refresh});
+			});
+		});
+	}
+
 	renderItem = ({item}) => {
 		return (
 			<TouchableOpacity onPress={() => this.selectItem(item)} >

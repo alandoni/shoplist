@@ -43,11 +43,59 @@ export default class OrderScreen extends AbstractRequestScreen {
 		console.log(data);
 		this.setState({name: data.name, data: data.products, refresh: !this.state.refresh});
 	}
+	
+	newProduct = () => {
+		const { navigate } = this.props.navigation;
+		navigate('SearchProduct', {
+			backTo: 'NewListScreen', 
+			onBack: this.addProductToTheList
+		});
+	}
+
+	addProductToTheList = (product) => {
+		const { products } = this.state;
+		products.push(product);
+		this.setState({products, refresh: !this.state.refresh});
+	}
+
+	selectProduct = (product) => {
+		this.setState({selectedProduct: product, modalVisible: true});
+	}
+
+	removeProductFromOrderListWithConfirmation = (item) => {
+		Alert.alert(
+			'Atenção!',
+			'Tem certeza que quer excluir esse produto da lista? (isso não excluirá o produto do sistema)',
+			[
+				{
+					text: 'Excluir',
+					onPress: () => {
+						this.deleteProductFromOrder(item);
+					},
+				},
+				{
+					text: 'Cancelar',
+				},
+			],
+		);
+	}
+
+	deleteProductFromOrder = (item) => {
+		this.setState({isLoading: true}, () => {
+			return DataManager.removeProductFromOrder(item.id).then(() => {
+				const list = this.state.data;
+				return list.filter((value) => {
+					return value.id !== item.id;
+				});
+			}).then((newList) => {
+				this.setState({isLoading: false, data: newList, refresh: !this.state.refresh});
+			});
+		});
+	}
 
 	renderItem({item}) {
-		const { navigate } = this.props.navigation;
 		return (
-			<TouchableHighlight  onPress={() => navigate('BuyAction', {name: item.name, id: item.key})}>
+			<TouchableHighlight onPress={() => this.selectProduct(item)}>
 				<View>
 					<CheckBox 
 						title=""
@@ -61,8 +109,7 @@ export default class OrderScreen extends AbstractRequestScreen {
 							<Text>...</Text>
 						</MenuTrigger>
 						<MenuOptions>
-							<MenuOption onSelect={() => navigate('NewProduct', {name: item.name, id: item.key})} text='Editar' />
-							<MenuOption onSelect={() => alert(`Excluir`)} >
+							<MenuOption onSelect={() => this.removeProductFromOrderListWithConfirmation(item)} >
 								<Text style={{color: 'red'}}>Excluir</Text>
 							</MenuOption>
 						</MenuOptions>
@@ -70,10 +117,6 @@ export default class OrderScreen extends AbstractRequestScreen {
 				</View>
 			</TouchableHighlight >
 		)
-	}
-
-	searchProduct = () => {
-
 	}
 
 	render() {
@@ -86,6 +129,11 @@ export default class OrderScreen extends AbstractRequestScreen {
 		}
 		return (
 			<View style={defaultStyles.fullHeght}>
+				<EditProductInListModal
+					product={this.state.selectedProduct}
+					visible={this.state.modalVisible}
+					onCloseModal={(product) => this.updateProduct(product)}
+				/>
 				<Text>{this.state.name}</Text>
 				{
 					this.state.id ?
@@ -100,7 +148,7 @@ export default class OrderScreen extends AbstractRequestScreen {
 					keyExtractor={(item) => item.id}
 					style={defaultStyles.fullHeght}
 				/>
-				<FloatingActionButton onPress={this.searchProduct} />
+				<FloatingActionButton onPress={this.newProduct} />
 			</View>
 		);
 	}

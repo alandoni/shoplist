@@ -25,7 +25,7 @@ class FloatingActionButton extends React.Component {
 				color="#f4511e"
 				overrideWithAction
 				actions={actions}
-				onPressItem={(name) => this.onPress()} />
+				onPressItem={() => this.onPress()} />
 		)
 	}
 }

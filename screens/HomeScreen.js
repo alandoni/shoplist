@@ -62,8 +62,35 @@ export default class HomeScreen extends AbstractRequestScreen {
 		navigate('NewList', {name: item.name, id: item.id})
 	}
 
-	removeList = (item) => {
-		alert('NOT YET IMPLEMENTED');
+	removeShopListWithConfirmation = (item) => {
+		Alert.alert(
+			'Atenção!',
+			'Tem certeza que quer excluir essa lista de compras?',
+			[
+				{
+					text: 'Excluir',
+					onPress: () => {
+						this.deleteShopList(item);
+					},
+				},
+				{
+					text: 'Cancelar',
+				},
+			],
+		);
+	}
+
+	deleteShopList = (item) => {
+		this.setState({isLoading: true}, () => {
+			return DataManager.removeShopList(item.id).then(() => {
+				const list = this.state.data;
+				return list.filter((value) => {
+					return value.id !== item.id;
+				});
+			}).then((newList) => {
+				this.setState({isLoading: false, data: newList, refresh: !this.state.refresh});
+			});
+		});
 	}
 
 	renderItem = ({item}) => {
@@ -78,7 +105,7 @@ export default class HomeScreen extends AbstractRequestScreen {
 						</MenuTrigger>
 						<MenuOptions>
 							<MenuOption onSelect={() => this.editList(item)} text='Editar' />
-							<MenuOption onSelect={() => this.removeList(item)} >
+							<MenuOption onSelect={() => this.removeShopListWithConfirmation(item)} >
 								<Text style={{color: 'red'}}>Excluir</Text>
 							</MenuOption>
 						</MenuOptions>

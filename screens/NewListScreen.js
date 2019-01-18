@@ -105,8 +105,35 @@ export default class NewListScreen extends AbstractRequestScreen {
 		alert('NOT YET IMPLEMENTED');
 	}
 
-	deleteItem = (item) => {
-		alert('NOT YET IMPLEMENTED');
+	removeProductFromShopListWithConfirmation = (item) => {
+		Alert.alert(
+			'Atenção!',
+			'Tem certeza que quer excluir esse produto da lista? (isso não excluirá o produto do sistema)',
+			[
+				{
+					text: 'Excluir',
+					onPress: () => {
+						this.deleteProductFromShopList(item);
+					},
+				},
+				{
+					text: 'Cancelar',
+				},
+			],
+		);
+	}
+
+	deleteProductFromShopList = (item) => {
+		this.setState({isLoading: true}, () => {
+			return DataManager.removeProductFromShopList(item.id).then(() => {
+				const list = this.state.products;
+				return list.filter((value) => {
+					return value.id !== item.id;
+				});
+			}).then((newList) => {
+				this.setState({isLoading: false, products: newList, refresh: !this.state.refresh});
+			});
+		});
 	}
 
 	renderItem = ({item}) => {
@@ -123,7 +150,7 @@ export default class NewListScreen extends AbstractRequestScreen {
 					</MenuTrigger>
 					<MenuOptions>
 						<MenuOption onSelect={() => this.editAmount(item)} text='Editar Quantidade' />
-						<MenuOption onSelect={() => this.deleteItem(item)} >
+						<MenuOption onSelect={() => this.removeProductFromShopListWithConfirmation(item)} >
 							<Text style={{color: 'red'}}>Excluir</Text>
 						</MenuOption>
 					</MenuOptions>
@@ -158,7 +185,7 @@ export default class NewListScreen extends AbstractRequestScreen {
 					keyExtractor={(item) => item.id}
 					style={defaultStyles.fullHeght}
 				/>
-				<FloatingActionButton onPress={this.searchProduct} />
+				<FloatingActionButton onPress={this.newProduct} />
 			</View>
 		);
 	}
