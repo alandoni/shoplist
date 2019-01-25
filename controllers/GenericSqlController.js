@@ -30,7 +30,6 @@ export default class GenericSqlController {
 		const fieldNames = this.getFieldDescriptors().map((value) => {
 			return value.name;
 		});
-
 		const fieldValues = fieldNames.map((value) => {
 			return data[value];
 		});
@@ -74,19 +73,26 @@ export default class GenericSqlController {
 		return SqlDatabaseController.delete(this.getTableName());
 	}
 
+	fieldNames() {
+		const fields = this.getFieldDescriptors().reduce((accumulator, current) => {
+				return `${accumulator}, ${this.getTableName()}.${current.name}`;
+		}, `${this.getTableName()}.id`);
+		return fields;
+	}
+
 	selectAll() {
-		return SqlDatabaseController.select(this.getTableName()).then(this.processData);
+		return SqlDatabaseController.select(this.getTableName(), this.fieldNames()).then(this.processData);
 	}
 
 	select(condition, params) {
-		return SqlDatabaseController.select(this.getTableName(), condition, params);
+		return SqlDatabaseController.select(this.getTableName(), this.fieldNames(), condition, params);
 	}
 
 	selectById(id) {
-		return SqlDatabaseController.select(this.getTableName(), `id = ?`, [id]).then(this.processData);
+		return SqlDatabaseController.select(this.getTableName(), this.fieldNames(), `id = ?`, [id]).then(this.processData);
 	}
 
 	selectByName(name) {
-		return SqlDatabaseController.select(this.getTableName(), `name LIKE %?%`, [name]).then(this.processData);
+		return SqlDatabaseController.select(this.getTableName(), this.fieldNames(), `name LIKE %?%`, [name]).then(this.processData);
 	}
 }

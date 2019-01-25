@@ -27,8 +27,6 @@ export default class ProductsInShopListsController extends GenericSqlController 
 	processData(data) {
 		return data.map((product) => {
 			product.id = '' + product.id;
-			product.value = `R$ ${product.value}`;
-			product.totalValue = `R$ ${product.amount * product.value}`;
 			return product;
 		});
 	}

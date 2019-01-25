@@ -17,7 +17,6 @@ export default class ShopListsController extends GenericSqlController {
 	processData(data) {
 		return data.map((value) => {
 			value.id = '' + value.id;
-			product.value = `R$ ${value.totalValue}`;
 			return value;
 		});
 	}

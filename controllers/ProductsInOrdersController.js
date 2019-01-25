@@ -1,7 +1,7 @@
 import { FieldDescriptor, TEXT, INTEGER, REAL, ForeignKeyDescriptor } from "./SqlDatabaseController";
 import GenericSqlController from "./GenericSqlController";
 import ProductsController from "./ProductsController";
-import ShopListsController from "./ShopListsController";
+import OrdersController from "./OrdersController";
 
 export default class ProductsInOrdersController extends GenericSqlController {
 	getFieldDescriptors() {
@@ -27,8 +27,6 @@ export default class ProductsInOrdersController extends GenericSqlController {
 	processData(data) {
 		return data.map((product) => {
 			product.id = '' + product.id;
-			product.value = `R$ ${product.value}`;
-			product.totalValue = `R$ ${product.amount * product.value}`;
 			return product;
 		});
 	}

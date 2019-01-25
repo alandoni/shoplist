@@ -18,103 +18,6 @@ productsInShopLists = [];
 orders = [];
 orderProducts = [];
 
-function log(text) {
-	console.log(text);
-}
-
-class ListManipulator {
-	static getAll(list) {
-		return Promise.resolve(list);
-	}
-
-	static getById(list, id) {
-		return Promise.resolve(list.filter((value) => value.id === id)[0]);
-	}
-
-	static searchByName(list, name) {
-		return Promise.resolve(list.filter((value) => value.name.indexOf(name) >= 0));
-	}
-
-	static save(list, item) {
-		item.id = (list.length + 1) + ''
-		list.push(item);
-		return Promise.resolve(item);
-	}
-
-	static update(list, id, item) {
-		for (let index = 0; index < list.length; index++) {
-			if (list[index].id === id) {
-				list[index] = item;
-			}
-		}
-		return Promise.resolve(item);
-	}
-
-	static remove(list, id) {
-		let item = null;
-		for (let index = 0; index < list.length; index++) {
-			if (list[index].id === id) {
-				item = list.splice(index, 1);
-			}
-		}
-		return Promise.resolve(item);
-	}
-}
-
-class SQLManipulator {
-	createTables() {
-		db.transaction((tx) => {
-			tx.executeSql(`create table if not exists categories 
-                (id integer primary key not null, 
-                name text)`);
-			tx.executeSql(`create table if not exists products 
-                (id integer primary key not null, 
-                name text,
-                notes text,
-                value real, 
-                category integer, 
-                FOREIGN KEY(category) REFERENCES categories(id))`);
-			tx.executeSql(`create table if not exists category 
-                (id integer primary key not null, 
-                name text)`);
-			tx.executeSql(`create table if not exists shopLists 
-                (id integer primary key not null, 
-                name text,
-                totalValue real)`);
-			tx.executeSql(`create table if not exists shopLists 
-                (id integer primary key not null, 
-                shopList integer,
-                product integer,
-                value real,
-                amount real,
-                totalValue real,
-                FOREIGN KEY(shopList) REFERENCES shopLists(id)
-                FOREIGN KEY(product) REFERENCES products(id)))`);
-			tx.executeSql(`create table if not exists orders 
-                (id integer primary key not null, 
-                shopList integer,
-                date text,
-                totalValue real,
-                FOREIGN KEY(shopList) REFERENCES shopLists(id))`);
-			tx.executeSql(`create table if not exists orderProducts
-                (id integer primary key not null, 
-                order integer,
-                product integer,
-                value real,
-                amount real,
-                totalValue real,
-                FOREIGN KEY(order) REFERENCES orders(id)
-                FOREIGN KEY(product) REFERENCES products(id))`);
-
-
-			tx.executeSql('insert into items (done, value) values (0, ?)', [text]);
-			tx.executeSql('select * from items', [], (_, { rows }) =>
-				console.log(JSON.stringify(rows))
-			);
-		});
-	}
-}
-
 export default class DataManager {
 
 	// Products
@@ -123,7 +26,7 @@ export default class DataManager {
 	}
 
 	static getProductById(id) {
-		return new ProductsController().getById(products, id)
+		return new ProductsController().selectById(products, id)
 	}
 
 	static searchProductByName(name) {
@@ -136,8 +39,8 @@ export default class DataManager {
 	}
 
 	static updateProduct(id, name, value, notes, category) {
-		const product = { name, value, notes, category: category };
-		return new ProductsController().updateById(products, id, product)
+		const product = { name, value, notes, category };
+		return new ProductsController().updateById(id, product)
 	}
 
 	static removeProduct(id) {
@@ -150,15 +53,15 @@ export default class DataManager {
 
 	// Categories
 	static getAllCategories() {
-		return new CategoriesController().getAll();
+		return new CategoriesController().selectAll();
 	}
 
 	static getCategoryById(id) {
-		return new CategoriesController().getById(id)
+		return new CategoriesController().selectById(id)
 	}
 
 	static searchCategoryByName(name) {
-		return new CategoriesController().searchByName(name);
+		return new CategoriesController().selectByName(name);
 	}
 
 	static saveCategory(name) {
@@ -177,19 +80,22 @@ export default class DataManager {
 
 	// ShopLists
 	static getAllShopLists() {
-		return new ShopListsController().getAll();
+		return new ShopListsController().selectAll();
 	}
 
 	static getShopListById(id) {
-		return new ShopListsController().getById(id)
+		return new ShopListsController().selectById(id)
 	}
 
 	static searchShopListByName(name) {
-		return new ShopListsController().searchByName(name);
+		return new ShopListsController().selectByName(name);
 	}
 
 	static _createShopListObject(name, products) {
+		console.log(products);
 		const productListInfo = products.reduce((accumulator, currentValue) => {
+			console.log(accumulator);
+			console.log(currentValue);
 			return {
 				amount: (accumulator.amount += currentValue.amount),
 				totalValue: (accumulator.totalValue += currentValue.totalValue)
@@ -199,13 +105,16 @@ export default class DataManager {
 	}
 
 	static saveShopList(name, products) {
-		return new ShopListsController().save(DataManager._createShopListObject(name, products)).then((shopList) => {
+		const shopList = DataManager._createShopListObject(name, products);
+		console.log(shopList);
+		return new ShopListsController().insert(shopList).then((shopList) => {
 			return insertProductsInShopList(shopList.id, products);
 		});
 	}
 
 	static updateShopList(id, name, products) {
-		return new ShopListsController().update(id, DataManager._createShopListObject(name, products)).then(() => {
+		const shopList = DataManager._createShopListObject(name, products);
+		return new ShopListsController().update(id, shopList).then(() => {
 			return DataManager.removeAllProductsFromShopList(id);
 		}).then(() => {
 			return DataManager.insertProductsInShopList(id, products);
@@ -251,11 +160,11 @@ export default class DataManager {
 
 	// Orders
 	static getAllOrders() {
-		return new OrdersController().getAll();
+		return new OrdersController().selectAll();
 	}
 
 	static getOrderById(id) {
-		return new OrdersController().getById(id)
+		return new OrdersController().selectById(id)
 	}
 
 	static _createOrderObject(shoplistId, date, products) {
@@ -269,13 +178,15 @@ export default class DataManager {
 	}
 
 	static saveOrder(shoplistId, date, products) {
-		return new OrdersController().save(DataManager._createOrderObject(shoplistId, date, products)).then((order) => {
+		const order = DataManager._createOrderObject(shoplistId, date, products);
+		return new OrdersController().insert(order).then((order) => {
 			return insertProductsInOrder(order.id, products);
 		});
 	}
 
 	static updateOrder(id, shoplistId, date, products) {
-		return new OrdersController().update(id, DataManager._createOrderObject(shoplistId, date, products)).then(() => {
+		const order = DataManager._createOrderObject(shoplistId, date, products);
+		return new OrdersController().update(id, order).then(() => {
 			return DataManager.removeAllProductsFromOrder(id);
 		}).then(() => {
 			return DataManager.insertProductsInOrder(id, products);

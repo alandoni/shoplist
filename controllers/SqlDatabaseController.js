@@ -56,19 +56,15 @@ class ForeignKeyDescriptor {
 }
 
 class SqlDatabaseController {
-	static removeLastComma(string) {
-		return string.substr(0, string.length - 2);
-	}
-
 	static fieldStringBuilder(field) {
 		let properties = '';
 		if (field.primaryKey) {
-			properties += PRIMARY_KEY + ' ';
+			properties += ` ${PRIMARY_KEY}`;
 		}
 		if (!field.nullable) {
-			properties += NOT_NULL;
+			properties += ` ${NOT_NULL}`;
 		}
-		return `${field.name} ${field.type} ${properties}`;
+		return `${field.name} ${field.type}${properties}`;
 	}
 
 	static foreignKeyStringBuilder(foreignKey) {
@@ -76,21 +72,20 @@ class SqlDatabaseController {
 	}
 
 	static createTableStringBuilder(tableName, fields, foreignKeys) {
-		let fieldsBuilder = '';
-		for (const field of fields) {
-			fieldsBuilder += `${SqlDatabaseController.fieldStringBuilder(field)}, `;
-		}
-		fieldsBuilder = SqlDatabaseController.removeLastComma(fieldsBuilder);
+		let fieldsBuilder = fields.reduce((accumulator, currentValue) => {
+			if (!accumulator.length) {
+				return `${SqlDatabaseController.fieldStringBuilder(currentValue)}`;
+			}
+			return `${accumulator}, ${SqlDatabaseController.fieldStringBuilder(currentValue)}`;
+		}, '');
 
 		let foreignKeysBuilder = '';
-		if (foreignKeys) {
-			foreignKeysBuilder = ', ';
-			for (const foreignKey of foreignKeys) {
-				foreignKeysBuilder += `${SqlDatabaseController.foreignKeyStringBuilder(foreignKey)}, `;
-			}
-			foreignKeysBuilder = SqlDatabaseController.removeLastComma(foreignKeysBuilder);
+		if (foreignKeys.length) {
+			foreignKeysBuilder = foreignKeys.reduce((accumulator, currentValue) => {
+				return `${accumulator}, ${SqlDatabaseController.foreignKeyStringBuilder(currentValue)}`
+			}, '');
 		}
-		return `${CREATE_TABLE} ${tableName} (${fieldsBuilder} ${foreignKeysBuilder});`;
+		return `${CREATE_TABLE} ${tableName} (${fieldsBuilder}${foreignKeysBuilder});`;
 	}
 
 	static createTable(tableName, fields, foreignKeys) {
@@ -99,13 +94,10 @@ class SqlDatabaseController {
 				const query = SqlDatabaseController.createTableStringBuilder(tableName, fields, foreignKeys);
 				console.log(query);
 				tx.executeSql(query);
-			}, (transaction, error) => {
-				console.log('Error');
-				console.log(transaction);
-				console.log(error);
+			}, (error) => {
+				console.error(error);
 				reject(error);
 			}, () => {
-				console.log('Success');
 				resolve();
 			});
 		})
@@ -117,25 +109,19 @@ class SqlDatabaseController {
 				const query = `${DROP_TABLE} ${tableName}`;
 				console.log(query);
 				tx.executeSql(query);
-			}, (transaction, error) => {
-				console.log('Error');
-				console.log(transaction);
-				console.log(error);
+			}, (error) => {
+				console.error(error);
 				reject(error);
 			}, () => {
-				console.log('Success');
 				resolve();
 			});
 		})
 	}
 
-	static select(tableName, whereCondition, params, innerJoin, orderBy, groupBy, fields) {
+	static select(tableName, fields, whereCondition, params, innerJoin, orderBy, groupBy) {
 		let fieldsString = '';
 		if (fields) {
-			for (const field of fields) {
-				fieldsStringBuilder += `${field}, `;
-			}
-			fieldsStringBuilder = SqlDatabaseController.removeLastComma(fieldsStringBuilder);
+			fieldsString = fields;
 		} else {
 			fieldsString = WILD_CARD;
 		}
@@ -153,7 +139,7 @@ class SqlDatabaseController {
 		}
 		let innerJoinString = '';
 		if (innerJoin) {
-			innerJoinString = `${INNER_JOIN} ${innerJoin.foreignTableName} ${ON} ${tableName}.${innerJoin.field} = ${innerJoin.foreignTableName}.${innerJoin.foreignField};`;
+			innerJoinString = `${INNER_JOIN} ${innerJoin.tableName} ${ON} ${tableName}.${innerJoin.field} = ${innerJoin.tableName}.${innerJoin.foreignField}`;
 		}
 		const query = `${SELECT} ${fieldsString} ${FROM} ${tableName} ${innerJoinString} ${whereString} ${orderByString} ${groupByString}`;
 		console.log(query);
@@ -162,30 +148,32 @@ class SqlDatabaseController {
 		return new Promise((resolve, reject) => {
 			db.transaction((tx) => {
 				tx.executeSql(query, params, (transaction, resultSet) => {
-					console.log(resultSet.rows._array);
 					result = resultSet.rows._array;
 				});
-			}, (transaction, error) => {
-				console.log('Error');
-				console.log(transaction);
-				console.log(error);
+			}, (error) => {
+				console.error(error);
 				reject(error);
 			}, () => {
-				console.log('Success');
 				resolve(result);
 			});
 		});
 	}
 
 	static insert(tableName, fields, values) {
-		let fieldsStringBuilder = '';
-		let valuesStringBuilder = '';
-		for (const field of fields) {
-			fieldsStringBuilder += `${field}, `;
-			valuesStringBuilder += '?, ';
-		}
-		fieldsStringBuilder = SqlDatabaseController.removeLastComma(fieldsStringBuilder);
-		valuesStringBuilder = SqlDatabaseController.removeLastComma(valuesStringBuilder);
+		const fieldsStringBuilder = fields.reduce((accumulator, currentValue) => {
+			if (!accumulator.length) {
+				return `${currentValue}`;
+			}
+			return `${accumulator}, ${currentValue}`;
+		}, '');
+
+		const valuesStringBuilder = fields.reduce((accumulator, currentValue) => {
+			if (!accumulator.length) {
+				return '?';
+			}
+			return `${accumulator}, ?`;
+		}, '');
+			
 		let result = null;
 		return new Promise((resolve, reject) => {
 			db.transaction((tx) => {
@@ -195,23 +183,20 @@ class SqlDatabaseController {
 				tx.executeSql(query, values, (transaction, success) => {
 					result = success.insertId;
 				});
-			}, (transaction, error) => {
-				console.log(transaction);
-				console.log(error);
+			}, (error) => {
+				console.error(error);
 				reject(error);
 			}, () => {
-				console.log(result);
 				resolve(result);
 			});
 		});
 	}
 
 	static update(tableName, fields, whereCondition, params) {
-		let fieldsStringBuilder = '';
-		for (const field of fields) {
-			fieldsStringBuilder += `${field} = ?, `;
-		}
-		fieldsStringBuilder = SqlDatabaseController.removeLastComma(fieldsStringBuilder);
+		const fieldsStringBuilder = fields.reduce((accumulator, currentValue) => {
+			return `${accumulator}, ${currentValue} = ?`;
+		}, `${fields[0]} = ?, `);
+
 		let whereString = '';
 		if (whereCondition) {
 			whereString = `${WHERE} (${whereCondition})`;
@@ -232,16 +217,12 @@ class SqlDatabaseController {
 		return new Promise((resolve, reject) => {
 			db.transaction((tx) => {
 				tx.executeSql(query, params, (transaction, resultSet) => {
-					console.log(resultSet.rows._array);
 					result = resultSet.rows._array;
 				});
-			}, (transaction, error) => {
-				console.log('Error');
-				console.log(transaction);
-				console.log(error);
+			}, (error) => {
+				console.error(error);
 				reject(error);
 			}, () => {
-				console.log('Success');
 				resolve(result);
 			});
 		});
