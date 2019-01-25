@@ -144,5 +144,3 @@ export default class HomeScreen extends AbstractRequestScreen {
 		);
 	}
 }
-
-// <MenuOption onSelect={() => alert(`Not called`)} disabled={true} text='Disabled' />

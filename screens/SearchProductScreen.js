@@ -55,7 +55,7 @@ export default class SearchProductScreen extends AbstractRequestScreen {
 	selectItem(item) {
 		const { navigation } = this.props;
 		navigation.state.params.onBack(item);
-		this.props.navigation.goBack();
+		navigation.goBack();
 	}
 
 	removeProductWithConfirmation = (item) => {

@@ -40,8 +40,11 @@ export default class OrderScreen extends AbstractRequestScreen {
 	}
 
 	finishedRequestingData(data) {
-		console.log(data);
-		this.setState({name: data.name, data: data.products, refresh: !this.state.refresh});
+		if (data) {
+			this.setState({name: data.name, data: data.products, isLoading: false, refresh: !this.state.refresh});
+		} else {
+			super.onDataRequested(data, error);
+		}
 	}
 	
 	newProduct = () => {
@@ -93,6 +96,16 @@ export default class OrderScreen extends AbstractRequestScreen {
 		});
 	}
 
+	editProduct = (item) => {
+		this.props.navigation.navigate('NewProduct', {
+			name: item.name,
+			id: item.id,
+			onBack: () => { 
+				this.request();
+			}
+		});
+	}
+
 	renderItem({item}) {
 		return (
 			<TouchableHighlight onPress={() => this.selectProduct(item)}>
@@ -109,6 +122,7 @@ export default class OrderScreen extends AbstractRequestScreen {
 							<Text>...</Text>
 						</MenuTrigger>
 						<MenuOptions>
+							<MenuOption onSelect={() => this.editProduct(item)} text='Editar Produto' />
 							<MenuOption onSelect={() => this.removeProductFromOrderListWithConfirmation(item)} >
 								<Text style={{color: 'red'}}>Excluir</Text>
 							</MenuOption>
@@ -129,11 +143,13 @@ export default class OrderScreen extends AbstractRequestScreen {
 		}
 		return (
 			<View style={defaultStyles.fullHeght}>
-				<EditProductInListModal
-					product={this.state.selectedProduct}
-					visible={this.state.modalVisible}
-					onCloseModal={(product) => this.updateProduct(product)}
-				/>
+				{ this.state.selectedProduct ? 
+					<EditProductInListModal
+						product={this.state.selectedProduct}
+						visible={this.state.modalVisible}
+						onCloseModal={(product) => this.updateProduct(product)}
+					/>
+				: null }
 				<Text>{this.state.name}</Text>
 				{
 					this.state.id ?

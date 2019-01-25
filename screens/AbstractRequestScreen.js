@@ -16,14 +16,14 @@ export default class AbstractRequestScreen extends React.Component {
 	}
 
 	request() {
-		if (!this.requestData()) {
+		const request = this.requestData();
+		if (!request) {
 			this.setState({ isLoading: false });
 			return;
 		}
 		this.setState({ isLoading: true }, () => {
-			return this.requestData().then((data) => {
-				this.onDataRequested(data, null);
-				this.finishedRequestingData(data);
+			request.then((data) => {
+				return this.onDataRequested(data, null);
 			}).catch((error) => {
 				this.onDataRequested(null, error);
 			});
@@ -34,12 +34,7 @@ export default class AbstractRequestScreen extends React.Component {
 		return null;
 	}
 
-	finishedRequestingData(data) {
-
-	}
-
 	onDataRequested(data, error) {
 		this.setState({ data, error, isLoading: false, refresh: !this.state.refresh });
 	}
-
 }

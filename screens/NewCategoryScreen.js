@@ -1,6 +1,8 @@
 import React from 'react';
 import { StyleSheet, TextInput, View, Button, ActivityIndicator } from 'react-native';
 import AbstractRequestScreen from './AbstractRequestScreen';
+import defaultStyles from '../utils/styles';
+import DataManager from '../controllers/DataManager';
 
 export default class NewCategoryScreen extends AbstractRequestScreen {
 	static navigationOptions = ({ navigation }) => {
@@ -29,9 +31,10 @@ export default class NewCategoryScreen extends AbstractRequestScreen {
 
 	saveCategory = () => {
 		this.setState({isLoading: true}, () => {
-			this.saveOrUpdate().then((Category) => {
-				this.props.navigation.state.params.onBack(Category);
-				this.props.navigation.goBack();
+			this.saveOrUpdate().then((category) => {
+				const { navigation } = this.props;
+				navigation.state.params.onBack(category[0]);
+				navigation.goBack();
 			}).catch((error) => {
 				this.setState({error, isLoading: false});
 			});
@@ -40,16 +43,16 @@ export default class NewCategoryScreen extends AbstractRequestScreen {
 
 	saveOrUpdate() {
 		if (this.state.id) {
-			return DataManager.updateCategory(this.props.id, this.state.name, this.state.products);
+			return DataManager.updateCategory(this.props.id, this.state.name);
 		} else {
-			return DataManager.saveCategory(this.state.name, this.state.products);
+			return DataManager.saveCategory(this.state.name);
 		}
 	}
 
 	render() {
 		if (this.state.isLoading) {
 			return (
-				<View style={[styles.container, styles.horizontal]}>
+				<View style={[defaultStyles.container, defaultStyles.horizontal]}>
 					<ActivityIndicator size="large" color="#0000ff" />
 				</View>
 			);

@@ -9,18 +9,19 @@ import {
   Picker, 
   Modal } from 'react-native';
 import DataManager from '../controllers/DataManager';
-import defaultStyles from '../styles';
+import defaultStyles from '../utils/styles';
 
 export default class EditProductInListModal extends React.Component {
 
   constructor(props) {
     super(props);
+  }
 
-    this.state = {
-      id: this.props.product.id,
-      amount: this.props.product.amount,
-      value: this.props.product.value,
-    };
+  componentWillReceiveProps(newProps) {
+    this.setState({
+      amount: newProps.product.amount,
+      value: newProps.product.value,
+    });
   }
 
   closeModal() {

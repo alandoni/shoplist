@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, TextInput, Text, View, Button, ActivityIndicator, Picker } from 'react-native';
 import DataManager from '../controllers/DataManager';
 import AbstractRequestScreen from './AbstractRequestScreen';
-import defaultStyles from '../styles';
+import defaultStyles from '../utils/styles';
 
 export default class NewProductScreen extends AbstractRequestScreen {
 	static navigationOptions = ({ navigation }) => {
@@ -24,11 +24,39 @@ export default class NewProductScreen extends AbstractRequestScreen {
 	}
 
 	requestData() {
-		return DataManager.getAllCategories();
+		const data = {};
+		return DataManager.getAllCategories(categories).then((categories) => {
+			data.categories = categories;
+			return this.requestProductIfNeeded();
+		}).then((product) => {
+			if (product) {
+				data.product = product;
+			}
+			return data;
+		});
 	}
 
-	finishedRequestingData(data) {
-		this.setState({category: data[0]});
+	requestProductIfNeeded = () => {
+		if (this.state.id) {
+			return DataManager.getProductById(this.state.id);
+		} else {
+			return Promise.resolve(null);
+		}
+	}
+
+	onDataRequested(data, error) {
+		if (data) {
+			const category = data.categories[0];
+			if (data.product) {
+				data.name = data.product.name;
+				data.value = data.product.value;
+				data.category.id = data.product.category;
+				data.notes = data.product.notes;
+			}
+			this.setState({data, category, error, isLoading: false, refresh: !this.state.refresh });
+		} else {
+			super.onDataRequested(data, error);
+		}
 	}
 
 	saveProduct = () => {
@@ -48,19 +76,31 @@ export default class NewProductScreen extends AbstractRequestScreen {
 				this.props.id,
 				this.state.name,
 				this.state.value,
+				this.state.notes,
 				this.state.category.id,
-				this.state.notes);
+				);
 		} else {
 			return DataManager.saveProduct(
 				this.state.name,
 				this.state.value,
+				this.state.notes,
 				this.state.category.id,
-				this.state.notes);
+				);
 		}
 	}
 
 	newCategory = () => {
-		this.props.navigation.navigate('NewCategory', {onBack: (category) => this.setState({category})})
+		this.props.navigation.navigate('NewCategory', { onBack: (category) => this.addCategory(category) });
+	}
+
+	addCategory = (category) => {
+		const { categories } = this.state.data;
+		categories.push(category);
+
+		const { data } = this.state;
+		data.categories = categories;
+		console.log(categories);
+		this.setState({data, category});
 	}
 
 	render() {
@@ -80,8 +120,8 @@ export default class NewProductScreen extends AbstractRequestScreen {
 		}
 		return (
 			<View>
-				{this.props.id ? 
-					<Text>ID: {this.props.id}</Text>
+				{this.state.id ? 
+					<Text>ID: {this.state.id}</Text>
 				: null}
 				<TextInput 
 					placeholder="Nome"
@@ -96,7 +136,7 @@ export default class NewProductScreen extends AbstractRequestScreen {
 				<Picker
 					selectedValue={this.state.category}
 					onValueChange={(category) => this.setState({category})}>
-					{this.state.data.map((category) => {
+					{this.state.data.categories.map((category) => {
 						return <Picker.Item label={category.name} value={category} key={category.id}/>
 					})}
 				</Picker>

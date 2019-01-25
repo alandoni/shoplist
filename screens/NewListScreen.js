@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, TouchableHighlight, View, Text, TextInput, Button, FlatList, ActivityIndicator } from 'react-native';
 import { FloatingActionButton } from '../utils/custom-views-helper';
-
+import EditProductInListModal from './EditProductInListModal';
 import {
 	Menu,
 	MenuOptions,
@@ -59,16 +59,17 @@ export default class NewListScreen extends AbstractRequestScreen {
 		return Promise.resolve(null);
 	}
 
-	finishedRequestingData(data) {
+	onDataRequested(data, error) {
 		if (data) {
-			this.setState({name: data.name, products: data.products, refresh: !this.state.refresh});
+			this.setState({name: data.name, products: data.products, error, isLoading: false, refresh: !this.state.refresh});
+		} else {
+			super.onDataRequested(data, error);
 		}
 	}
 
 	saveShopList = () => {
 		this.setState({isLoading: true}, () => {
 			this.saveOrUpdate().then((shopList) => {
-				console.log('saved');
 				this.props.navigation.state.params.onBack(shopList);
 				this.props.navigation.goBack();
 			}).catch((error) => {
@@ -79,12 +80,14 @@ export default class NewListScreen extends AbstractRequestScreen {
 
 	saveOrUpdate = () => {
 		if (this.state.id) {
-			console.log('update');
 			return DataManager.updateShopList(this.props.id, this.state.name, this.state.products);
 		} else {
-			console.log('saving');
 			return DataManager.saveShopList(this.state.name, this.state.products);
 		}
+	}
+
+	selectProduct = (product) => {
+		this.setState({selectedProduct: product, modalVisible: true});
 	}
 
 	newProduct = () => {
@@ -97,12 +100,28 @@ export default class NewListScreen extends AbstractRequestScreen {
 
 	addProductToTheList = (product) => {
 		const { products } = this.state;
+		product.amount = 1;
+		product.totalValue = product.amount * product.value;
 		products.push(product);
 		this.setState({products, refresh: !this.state.refresh});
 	}
 
-	editAmount = (item) => {
-		alert('NOT YET IMPLEMENTED');
+	editAmountAndPrice = (item) => {
+		setState({modalVisible: true, selectedProduct: item});
+	}
+
+	updateProduct = (product) => {
+		product.totalValue = product.amount * product.value;
+	}
+
+	editProduct = (item) => {
+		this.props.navigation.navigate('NewProduct', {
+			name: item.name,
+			id: item.id,
+			onBack: () => { 
+				this.request();
+			}
+		});
 	}
 
 	removeProductFromShopListWithConfirmation = (item) => {
@@ -138,7 +157,7 @@ export default class NewListScreen extends AbstractRequestScreen {
 
 	renderItem = ({item}) => {
 		return (
-			<TouchableHighlight>
+			<TouchableHighlight onPress={() => { this.selectProduct(item) }}>
 				<View>
 					<Text>{item.name} - </Text>
 					<Text>{item.value} - </Text>
@@ -149,7 +168,7 @@ export default class NewListScreen extends AbstractRequestScreen {
 						<Text>...</Text>
 					</MenuTrigger>
 					<MenuOptions>
-						<MenuOption onSelect={() => this.editAmount(item)} text='Editar Quantidade' />
+						<MenuOption onSelect={() => this.editProduct(item)} text='Editar Produto' />
 						<MenuOption onSelect={() => this.removeProductFromShopListWithConfirmation(item)} >
 							<Text style={{color: 'red'}}>Excluir</Text>
 						</MenuOption>
@@ -170,6 +189,13 @@ export default class NewListScreen extends AbstractRequestScreen {
 		}
 		return (
 			<View style={defaultStyles.fullHeght}>
+				{ this.state.selectedProduct ? 
+					<EditProductInListModal
+						product={this.state.selectedProduct}
+						visible={this.state.modalVisible}
+						onCloseModal={(product) => this.updateProduct(product)}
+					/>
+				: null }
 				<TextInput 
 					placeholder="Descrição"
 					onChangeText={(text) => { this.setState({name: text}) }}
