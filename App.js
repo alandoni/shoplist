@@ -7,8 +7,12 @@ import SearchProductScreen from './screens/SearchProductScreen';
 import OrderScreen from './screens/OrderScreen';
 import NewCategoryScreen from './screens/NewCategoryScreen';
 import { MenuProvider } from 'react-native-popup-menu';
-import ProductsController from './controllers/ProductsController';
 import CategoriesController from './controllers/CategoriesController';
+import OrdersController from './controllers/OrdersController';
+import ProductsController from './controllers/ProductsController';
+import ProductsInOrdersController from './controllers/ProductsInOrdersController';
+import ProductsInShopListsController from './controllers/ProductsInShopListsController';
+import ShopListsController from './controllers/ShopListsController';
 
 const AppNavigator = createStackNavigator(
   {
@@ -49,22 +53,51 @@ const AppContainer = createAppContainer(AppNavigator);
 export default class App extends React.Component {
 
   componentDidMount() {
-    /*const productsController = new ProductsController();
-    productsController.dropTable();
+    this.createTables();
+  }
 
+  createTables() {
     const categoriesController = new CategoriesController();
-    categoriesController.dropTable();
+    const ordersController = new OrdersController();
+    const productsController = new ProductsController();
+    const productsInOrdersController = new ProductsInOrdersController();
+    const productsInShopListsController = new ProductsInShopListsController();
+    const shopListsController = new ShopListsController();
 
-    categoriesController.createTable().then(() => {
+    return categoriesController.createTable().then(() => {
       return productsController.createTable();
     }).then(() => {
-      return categoriesController.insert({name: 'Casa'});
-    }).then((category) => {
-        productsController.insert({name: 'Arroz', value: 4.99, notes: 'OBS', category: category[0].id});
-        return categoriesController.insert({name: 'Higiene'});
-    }).then((category) => {
-        productsController.insert({name: 'Sabonete', value: 1.19, notes: 'OBS teste', category: category[0].id});
-    });*/
+      return shopListsController.createTable();
+    }).then(() => {
+      return ordersController.createTable();
+    }).then(() => {
+      return productsInOrdersController.createTable();
+    }).then(() => {
+      return productsInShopListsController.createTable();
+    });
+  }
+
+  dropTables() {
+    const categoriesController = new CategoriesController();
+    const ordersController = new OrdersController();
+    const productsController = new ProductsController();
+    const productsInOrdersController = new ProductsInOrdersController();
+    const productsInShopListsController = new ProductsInShopListsController();
+    const shopListsController = new ShopListsController();
+    
+    return categoriesController.dropTable().then(() => {
+      ordersController.dropTable();
+    }).then(() => {
+      productsController.dropTable();
+    }).then(() => {
+      productsInOrdersController.dropTable();
+    }).then(() => {
+      productsInShopListsController.dropTable();
+    }).then(() => {
+      productsInShopListsController.dropTable();
+    }).then(() => {
+      shopListsController.dropTable();
+    });
   }
 
   render() {

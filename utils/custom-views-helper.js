@@ -17,7 +17,7 @@ class FloatingActionButton extends React.Component {
 		const actions = [{
 			text: 'Plus',
 			name: 'plus',
-			icon: require('./assets/icon.png'),
+			icon: require('../assets/icon.png'),
 			position: 1
 		}];
 		return (
