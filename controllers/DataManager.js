@@ -44,7 +44,7 @@ export default class DataManager {
 	}
 
 	static removeProduct(id) {
-		return new ProductsController().delete(id);
+		return new ProductsController().deleteById(id);
 	}
 
 	static removeAllProducts() {
@@ -130,7 +130,7 @@ export default class DataManager {
 	}
 
 	static removeShopList(id) {
-		return new ShopListsController().remove(id);
+		return new ShopListsController().deleteById(id);
 	}
 
 	// Products in Shop Lists
@@ -202,7 +202,7 @@ export default class DataManager {
 	}
 
 	static removeOrder(id) {
-		return new OrdersController().remove(id);
+		return new OrdersController().deleteById(id);
 	}
 
 	// Products in Orders

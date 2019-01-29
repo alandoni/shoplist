@@ -6,7 +6,9 @@ import {
 	Button,
 	TouchableHighlight,
 	ActivityIndicator,
-	FlatList } from 'react-native';
+	FlatList,
+	Alert,
+} from 'react-native';
 import {
 	Menu,
 	MenuOptions,

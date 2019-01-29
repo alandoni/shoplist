@@ -1,5 +1,15 @@
 import React from 'react';
-import { StyleSheet, TouchableHighlight, View, Text, TextInput, Button, FlatList, ActivityIndicator } from 'react-native';
+import { 
+	StyleSheet, 
+	TouchableHighlight, 
+	View, 
+	Text, 
+	TextInput, 
+	Button,
+	FlatList,
+	ActivityIndicator, 
+	Alert
+} from 'react-native';
 import { FloatingActionButton } from '../utils/custom-views-helper';
 import EditProductInListModal from './EditProductInListModal';
 import {

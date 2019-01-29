@@ -1,5 +1,15 @@
 import React from 'react';
-import { StyleSheet, View, FlatList, Text, TextInput, Button, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { 
+	StyleSheet,
+	View,
+	FlatList,
+	Text,
+	TextInput,
+	Button,
+	TouchableOpacity,
+	ActivityIndicator,
+	Alert,
+} from 'react-native';
 import { FloatingActionButton } from '../utils/custom-views-helper';
 import defaultStyles from '../utils/styles';
 import AbstractRequestScreen from './AbstractRequestScreen';
