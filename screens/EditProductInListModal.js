@@ -1,24 +1,18 @@
 import React from 'react';
-import { 
-  StyleSheet, 
+import {
   TextInput,
-  Text, 
-  View, 
-  Button, 
-  ActivityIndicator, 
-  Picker, 
+  Text,
+  View,
   TouchableHighlight,
-  Modal } from 'react-native';
-import DataManager from '../controllers/DataManager';
-import defaultStyles from '../utils/styles';
+  Modal,
+} from 'react-native';
 
 export default class EditProductInListModal extends React.Component {
-
   constructor(props) {
     super(props);
 
     this.state = {
-      amount: 1, 
+      amount: 1,
       value: 1,
     };
   }
@@ -35,35 +29,38 @@ export default class EditProductInListModal extends React.Component {
       this.props.onRequestClose(this.state);
     }
   }
-  
+
   render() {
     return (
       <Modal
         animationType="slide"
         transparent={false}
-        visible={this.props.visible}>
-        <View style={{marginTop: 62}}>
+        visible={this.props.visible}
+        onRequestClose={this.props.onRequestClose}
+      >
+        <View style={{ marginTop: 62 }}>
           <View>
             <Text>{this.props.product.name}</Text>
-            <TextInput 
+            <TextInput
               placeholder="Quantidade"
-              onChangeText={(text) => { this.setState({amount: text}) }}
-              value={this.state.amount}
+              onChangeText={(text) => { this.setState({ amount: text }); }}
+              value={`${this.state.amount}`}
             />
             <TextInput
               placeholder="Valor"
-              onChangeText={(text) => { this.setState({value: text}) }}
-              value={this.state.value}
+              onChangeText={(text) => { this.setState({ value: text }); }}
+              value={`${this.state.value}`}
             />
             <TouchableHighlight
               onPress={() => {
                 this.closeModal();
-              }}>
+              }}
+            >
               <Text>Salvar</Text>
             </TouchableHighlight>
           </View>
         </View>
       </Modal>
-    )
+    );
   }
 }

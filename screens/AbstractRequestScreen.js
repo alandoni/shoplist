@@ -1,40 +1,37 @@
 import React from 'react';
 
 export default class AbstractRequestScreen extends React.Component {
-	constructor(props) {
-		super(props);
-		const name = props.navigation.getParam('name', '');
-		const id = props.navigation.getParam('id', '');
+  constructor(props) {
+    super(props);
 
-		this.state = {
-			isLoading: true, error: null, data: null
-		};
-	}
+    this.state = {
+      isLoading: true, error: null, data: null,
+    };
+  }
 
-	componentDidMount() {
-		this.request();
-	}
+  componentDidMount() {
+    this.request();
+  }
 
-	request() {
-		const request = this.requestData();
-		if (!request) {
-			this.setState({ isLoading: false });
-			return;
-		}
-		this.setState({ isLoading: true }, () => {
-			request.then((data) => {
-				return this.onDataRequested(data, null);
-			}).catch((error) => {
-				this.onDataRequested(null, error);
-			});
-		});
-	}
+  onDataRequested(data, error) {
+    const { refresh } = this.state;
+    this.setState({
+      data, error, isLoading: false, refresh: !refresh,
+    });
+  }
 
-	requestData() {
-		return null;
-	}
+  requestData = () => null
 
-	onDataRequested(data, error) {
-		this.setState({ data, error, isLoading: false, refresh: !this.state.refresh });
-	}
+  request() {
+    const request = this.requestData();
+    if (!request) {
+      this.setState({ isLoading: false });
+      return;
+    }
+    this.setState({ isLoading: true }, () => {
+      request.then(data => this.onDataRequested(data, null)).catch((error) => {
+        this.onDataRequested(null, error);
+      });
+    });
+  }
 }

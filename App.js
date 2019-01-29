@@ -1,12 +1,12 @@
 import React from 'react';
 import { createStackNavigator, createAppContainer } from 'react-navigation';
+import { MenuProvider } from 'react-native-popup-menu';
 import HomeScreen from './screens/HomeScreen';
 import NewProductScreen from './screens/NewProductScreen';
 import NewListScreen from './screens/NewListScreen';
 import SearchProductScreen from './screens/SearchProductScreen';
 import OrderScreen from './screens/OrderScreen';
 import NewCategoryScreen from './screens/NewCategoryScreen';
-import { MenuProvider } from 'react-native-popup-menu';
 import CategoriesController from './controllers/CategoriesController';
 import OrdersController from './controllers/OrdersController';
 import ProductsController from './controllers/ProductsController';
@@ -33,7 +33,7 @@ const AppNavigator = createStackNavigator(
     },
     OrderAction: {
       screen: OrderScreen,
-    }
+    },
   },
   {
     defaultNavigationOptions: {
@@ -45,18 +45,17 @@ const AppNavigator = createStackNavigator(
         fontWeight: 'bold',
       },
     },
-  }
-)
+  },
+);
 
 const AppContainer = createAppContainer(AppNavigator);
 
 export default class App extends React.Component {
-
   componentDidMount() {
     this.createTables();
   }
 
-  createTables() {
+  createTables = async () => {
     const categoriesController = new CategoriesController();
     const ordersController = new OrdersController();
     const productsController = new ProductsController();
@@ -64,40 +63,29 @@ export default class App extends React.Component {
     const productsInShopListsController = new ProductsInShopListsController();
     const shopListsController = new ShopListsController();
 
-    return categoriesController.createTable().then(() => {
-      return productsController.createTable();
-    }).then(() => {
-      return shopListsController.createTable();
-    }).then(() => {
-      return ordersController.createTable();
-    }).then(() => {
-      return productsInOrdersController.createTable();
-    }).then(() => {
-      return productsInShopListsController.createTable();
-    });
+    await categoriesController.createTable();
+    await productsController.createTable();
+    await shopListsController.createTable();
+    await ordersController.createTable();
+    await productsInOrdersController.createTable();
+    return productsInShopListsController.createTable();
   }
 
-  dropTables() {
+  dropTables = async () => {
     const categoriesController = new CategoriesController();
     const ordersController = new OrdersController();
     const productsController = new ProductsController();
     const productsInOrdersController = new ProductsInOrdersController();
     const productsInShopListsController = new ProductsInShopListsController();
     const shopListsController = new ShopListsController();
-    
-    return categoriesController.dropTable().then(() => {
-      ordersController.dropTable();
-    }).then(() => {
-      productsController.dropTable();
-    }).then(() => {
-      productsInOrdersController.dropTable();
-    }).then(() => {
-      productsInShopListsController.dropTable();
-    }).then(() => {
-      productsInShopListsController.dropTable();
-    }).then(() => {
-      shopListsController.dropTable();
-    });
+
+    await categoriesController.dropTable();
+    ordersController.dropTable();
+    productsController.dropTable();
+    productsInOrdersController.dropTable();
+    productsInShopListsController.dropTable();
+    productsInShopListsController.dropTable();
+    shopListsController.dropTable();
   }
 
   render() {
@@ -105,6 +93,6 @@ export default class App extends React.Component {
       <MenuProvider>
         <AppContainer />
       </MenuProvider>
-    )
+    );
   }
 }
