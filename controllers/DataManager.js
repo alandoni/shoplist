@@ -92,7 +92,9 @@ export default class DataManager {
 	}
 
 	static _createShopListObject(name, products) {
-		console.log(products);
+		if (products.length === 0) {
+			return { name, totalValue: 0, amountProducts: 0 };
+		}
 		const productListInfo = products.reduce((accumulator, currentValue) => {
 			console.log(accumulator);
 			console.log(currentValue);
@@ -108,13 +110,13 @@ export default class DataManager {
 		const shopList = DataManager._createShopListObject(name, products);
 		console.log(shopList);
 		return new ShopListsController().insert(shopList).then((shopList) => {
-			return insertProductsInShopList(shopList.id, products);
+			return DataManager.insertProductsInShopList(shopList.id, products);
 		});
 	}
 
 	static updateShopList(id, name, products) {
 		const shopList = DataManager._createShopListObject(name, products);
-		return new ShopListsController().update(id, shopList).then(() => {
+		return new ShopListsController().updateById(id, shopList).then(() => {
 			return DataManager.removeAllProductsFromShopList(id);
 		}).then(() => {
 			return DataManager.insertProductsInShopList(id, products);
@@ -186,7 +188,7 @@ export default class DataManager {
 
 	static updateOrder(id, shoplistId, date, products) {
 		const order = DataManager._createOrderObject(shoplistId, date, products);
-		return new OrdersController().update(id, order).then(() => {
+		return new OrdersController().updateById(id, order).then(() => {
 			return DataManager.removeAllProductsFromOrder(id);
 		}).then(() => {
 			return DataManager.insertProductsInOrder(id, products);

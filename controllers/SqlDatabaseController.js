@@ -89,33 +89,43 @@ class SqlDatabaseController {
 	}
 
 	static createTable(tableName, fields, foreignKeys) {
-		return new Promise((resolve, reject) => {
-			db.transaction((tx) => {
-				const query = SqlDatabaseController.createTableStringBuilder(tableName, fields, foreignKeys);
-				console.log(query);
-				tx.executeSql(query);
-			}, (error) => {
-				console.error(error);
-				reject(error);
-			}, () => {
-				resolve();
-			});
-		})
+		const query = SqlDatabaseController.createTableStringBuilder(tableName, fields, foreignKeys);
+		console.log(query);
+
+		return SqlDatabaseController.createTransaction(query);
 	}
 
 	static dropTable(tableName) {
+		const query = `${DROP_TABLE} ${tableName}`;
+		console.log(query);
+		return SqlDatabaseController.createTransaction(query);
+	}
+
+	static createTransaction(query, params) {
+		console.log(query);
+
+		if (params) {
+			console.log(params);
+		}
+
+		let result = null;
 		return new Promise((resolve, reject) => {
 			db.transaction((tx) => {
-				const query = `${DROP_TABLE} ${tableName}`;
-				console.log(query);
-				tx.executeSql(query);
+				tx.executeSql(query, params, (transaction, resultSet) => {
+					if (resultSet.insertId) {
+						result = resultSet.insertId;
+					}
+					if (resultSet.rows._array) {
+						result = resultSet.rows._array;
+					}
+				});
 			}, (error) => {
 				console.error(error);
 				reject(error);
 			}, () => {
-				resolve();
+				resolve(result);
 			});
-		})
+		});
 	}
 
 	static select(tableName, fields, whereCondition, params, innerJoin, orderBy, groupBy) {
@@ -144,22 +154,10 @@ class SqlDatabaseController {
 		const query = `${SELECT} ${fieldsString} ${FROM} ${tableName} ${innerJoinString} ${whereString} ${orderByString} ${groupByString}`;
 		console.log(query);
 
-		let result = null;
-		return new Promise((resolve, reject) => {
-			db.transaction((tx) => {
-				tx.executeSql(query, params, (transaction, resultSet) => {
-					result = resultSet.rows._array;
-				});
-			}, (error) => {
-				console.error(error);
-				reject(error);
-			}, () => {
-				resolve(result);
-			});
-		});
+		return SqlDatabaseController.createTransaction(query, params);
 	}
 
-	static insert(tableName, fields, values) {
+	static insert(tableName, fields, params) {
 		const fieldsStringBuilder = fields.reduce((accumulator, currentValue) => {
 			if (!accumulator.length) {
 				return `${currentValue}`;
@@ -173,37 +171,25 @@ class SqlDatabaseController {
 			}
 			return `${accumulator}, ?`;
 		}, '');
-			
-		let result = null;
-		return new Promise((resolve, reject) => {
-			db.transaction((tx) => {
-				const query = `${INSERT} ${tableName} (${fieldsStringBuilder}) ${VALUES} (${valuesStringBuilder});`;
-				console.log(query);
-				console.log(values);
-				tx.executeSql(query, values, (transaction, success) => {
-					result = success.insertId;
-				});
-			}, (error) => {
-				console.error(error);
-				reject(error);
-			}, () => {
-				resolve(result);
-			});
-		});
+
+		return SqlDatabaseController.createTransaction(query, params);
 	}
 
 	static update(tableName, fields, whereCondition, params) {
 		const fieldsStringBuilder = fields.reduce((accumulator, currentValue) => {
+			if (!accumulator.length) {
+				return `${currentValue} = ?`;
+			}
 			return `${accumulator}, ${currentValue} = ?`;
-		}, `${fields[0]} = ?, `);
+		}, '');
 
 		let whereString = '';
 		if (whereCondition) {
 			whereString = `${WHERE} (${whereCondition})`;
 		}
-		return db.transaction((tx) => {
-			return tx.executeSql(`${UPDATE} ${tableName} ${SET} (${fieldsStringBuilder}) ${whereString}`, values);
-		});
+		const query = `${UPDATE} ${tableName} ${SET} ${fieldsStringBuilder} ${whereString}`;
+
+		return SqlDatabaseController.createTransaction(query, params)
 	}
 
 	static delete(tableName, whereCondition, params) {
@@ -212,20 +198,8 @@ class SqlDatabaseController {
 			whereString = `${WHERE} (${whereCondition})`;
 		}
 		const query = `${DELETE} ${tableName} ${whereString}`;
-		console.log(query);
-		let result = null;
-		return new Promise((resolve, reject) => {
-			db.transaction((tx) => {
-				tx.executeSql(query, params, (transaction, resultSet) => {
-					result = resultSet.rows._array;
-				});
-			}, (error) => {
-				console.error(error);
-				reject(error);
-			}, () => {
-				resolve(result);
-			});
-		});
+
+		return SqlDatabaseController.createTransaction(query, params);
 	}
 }
 

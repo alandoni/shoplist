@@ -43,7 +43,7 @@ export default class GenericSqlController {
 		const fieldNames = this.getFieldDescriptors().map((value) => {
 			return value.name;
 		});
-		const fieldValues = this.fieldNames.map((value) => {
+		const fieldValues = fieldNames.map((value) => {
 			return data[value];
 		});
 		fieldValues.push(id);
@@ -54,7 +54,7 @@ export default class GenericSqlController {
 		const fieldNames = this.getFieldDescriptors().map((value) => {
 			return value.name;
 		});
-		const fieldValues = this.fieldNames.map((value) => {
+		const fieldValues = fieldNames.map((value) => {
 			return data[value];
 		});
 		fieldValues.push(params);
