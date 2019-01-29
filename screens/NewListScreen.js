@@ -47,9 +47,9 @@ export default class NewListScreen extends AbstractRequestScreen {
 			name, 
 			id,
 			products: [],
+		}, () => {
+			super.componentDidMount();
 		});
-		this.setState();
-		super.componentDidMount();
 	}
 	
 	requestData() {
