@@ -90,14 +90,11 @@ class SqlDatabaseController {
 
 	static createTable(tableName, fields, foreignKeys) {
 		const query = SqlDatabaseController.createTableStringBuilder(tableName, fields, foreignKeys);
-		console.log(query);
-
 		return SqlDatabaseController.createTransaction(query);
 	}
 
 	static dropTable(tableName) {
 		const query = `${DROP_TABLE} ${tableName}`;
-		console.log(query);
 		return SqlDatabaseController.createTransaction(query);
 	}
 
@@ -114,8 +111,7 @@ class SqlDatabaseController {
 				tx.executeSql(query, params, (transaction, resultSet) => {
 					if (resultSet.insertId) {
 						result = resultSet.insertId;
-					}
-					if (resultSet.rows._array) {
+					} else if (resultSet.rows._array) {
 						result = resultSet.rows._array;
 					}
 				});
@@ -149,11 +145,10 @@ class SqlDatabaseController {
 		}
 		let innerJoinString = '';
 		if (innerJoin) {
+			fieldsString += `, ${innerJoin.tableName}.*`;
 			innerJoinString = `${INNER_JOIN} ${innerJoin.tableName} ${ON} ${tableName}.${innerJoin.field} = ${innerJoin.tableName}.${innerJoin.foreignField}`;
 		}
 		const query = `${SELECT} ${fieldsString} ${FROM} ${tableName} ${innerJoinString} ${whereString} ${orderByString} ${groupByString}`;
-		console.log(query);
-
 		return SqlDatabaseController.createTransaction(query, params);
 	}
 
@@ -171,7 +166,7 @@ class SqlDatabaseController {
 			}
 			return `${accumulator}, ?`;
 		}, '');
-
+		const query = `${INSERT} ${tableName} (${fieldsStringBuilder}) ${VALUES} (${valuesStringBuilder});`;
 		return SqlDatabaseController.createTransaction(query, params);
 	}
 

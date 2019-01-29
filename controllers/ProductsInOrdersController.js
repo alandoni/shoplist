@@ -31,19 +31,25 @@ export default class ProductsInOrdersController extends GenericSqlController {
 		});
 	}
 
+	
 	selectAll() {
-		return SqlDatabaseController.select(this.getTableName(), null, null, this.getForeignKeysDescriptors()[1]).then(this.processData);
+		return SqlDatabaseController.select(this.getTableName(), this.fieldNames(), null, null, 
+			this.getForeignKeysDescriptors()[0], null, 
+			this.getFieldDescriptors()[1].name).then(this.processData);
 	}
 
 	select(condition, params) {
-		return SqlDatabaseController.select(this.getTableName(), condition, params, this.getForeignKeysDescriptors()[1]);
+		return SqlDatabaseController.select(this.getTableName(), this.fieldNames(), condition, params, 
+			this.getForeignKeysDescriptors()[0], null, this.getFieldDescriptors()[1].name).then(this.processData);
 	}
 
 	selectById(id) {
-		return SqlDatabaseController.select(this.getTableName(), `id = ?`, [id], this.getForeignKeysDescriptors()[1]).then(this.processData);
+		return SqlDatabaseController.select(this.getTableName(), this.fieldNames(), `id = ?`, [id], 
+			this.getForeignKeysDescriptors()[0], null, this.getFieldDescriptors()[1].name).then(this.processData);
 	}
 
 	selectByName(name) {
-		return SqlDatabaseController.select(this.getTableName(), `name LIKE %?%`, [name], this.getForeignKeysDescriptors()[1]).then(this.processData);
+		return SqlDatabaseController.select(this.getTableName(), this.fieldNames(), `name LIKE %?%`, [name], 
+			this.getForeignKeysDescriptors()[0], null, this.getFieldDescriptors()[1].name).then(this.processData);
 	}
 }

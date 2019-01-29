@@ -1,4 +1,4 @@
-import { FieldDescriptor, TEXT, INTEGER, REAL, ForeignKeyDescriptor } from "./SqlDatabaseController";
+import { SqlDatabaseController, FieldDescriptor, TEXT, INTEGER, REAL, ForeignKeyDescriptor } from "./SqlDatabaseController";
 import GenericSqlController from "./GenericSqlController";
 import ProductsController from "./ProductsController";
 import ShopListsController from "./ShopListsController";
@@ -32,18 +32,22 @@ export default class ProductsInShopListsController extends GenericSqlController 
 	}
 	
 	selectAll() {
-		return SqlDatabaseController.select(this.getTableName(), null, null, this.getForeignKeysDescriptors()[1]).then(this.processData);
+		return SqlDatabaseController.select(this.getTableName(), this.fieldNames(), null, null, 
+			this.getForeignKeysDescriptors()[1], null, null).then(this.processData);
 	}
 
 	select(condition, params) {
-		return SqlDatabaseController.select(this.getTableName(), condition, params, this.getForeignKeysDescriptors()[1]);
+		return SqlDatabaseController.select(this.getTableName(), this.fieldNames(), condition, params, 
+			this.getForeignKeysDescriptors()[1], null, null).then(this.processData);
 	}
 
 	selectById(id) {
-		return SqlDatabaseController.select(this.getTableName(), `id = ?`, [id], this.getForeignKeysDescriptors()[1]).then(this.processData);
+		return SqlDatabaseController.select(this.getTableName(), this.fieldNames(), `id = ?`, [id], 
+			this.getForeignKeysDescriptors()[1], null, null).then(this.processData);
 	}
 
 	selectByName(name) {
-		return SqlDatabaseController.select(this.getTableName(), `name LIKE %?%`, [name], this.getForeignKeysDescriptors()[1]).then(this.processData);
+		return SqlDatabaseController.select(this.getTableName(), this.fieldNames(), `name LIKE %?%`, [name], 
+			this.getForeignKeysDescriptors()[1], null, null).then(this.processData);
 	}
 }

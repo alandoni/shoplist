@@ -84,7 +84,14 @@ export default class DataManager {
 	}
 
 	static getShopListById(id) {
-		return new ShopListsController().selectById(id)
+		let shopList = null;
+		return new ShopListsController().selectById(id).then((loadedShopList) => {
+			shopList = loadedShopList[0];
+			return DataManager.getAllProductsInShopList(id);
+		}).then((products) => {
+			shopList.products = products;
+			return shopList;
+		});
 	}
 
 	static searchShopListByName(name) {
@@ -108,9 +115,8 @@ export default class DataManager {
 
 	static saveShopList(name, products) {
 		const shopList = DataManager._createShopListObject(name, products);
-		console.log(shopList);
-		return new ShopListsController().insert(shopList).then((shopList) => {
-			return DataManager.insertProductsInShopList(shopList.id, products);
+		return new ShopListsController().insert(shopList).then((newShopList) => {
+			return DataManager.insertProductsInShopList(newShopList[0].id, products);
 		});
 	}
 
@@ -138,13 +144,13 @@ export default class DataManager {
 
 	static insertProductsInShopList(shopListId, products) {
 		return Promise.all(products.map((product) => {
-			return DataManager.insertProductInShopList(shopListId, product.productId, product.amount, product.value);
+			return DataManager.insertProductInShopList(shopListId, product.id, product.amount, product.value);
 		}));
 	}
 
 	static insertProductInShopList(shoplistId, productId, amount, value) {
 		const productInShopList = { shoplistId, productId, amount, value };
-		return new ProductsInShopListsController().updateById(id, productInShopList);
+		return new ProductsInShopListsController().insert(productInShopList);
 	}
 
 	static updateProductInShopList(id, amount, value) {

@@ -46,7 +46,7 @@ export default class ProductsController extends GenericSqlController {
 
 	select(condition, params) {
 		return SqlDatabaseController.select(this.getTableName(), this.fieldNames(), condition, params, 
-			this.getForeignKeysDescriptors()[0], null, this.getFieldDescriptors()[3].name);
+			this.getForeignKeysDescriptors()[0], null, this.getFieldDescriptors()[3].name).then(this.processData);
 	}
 
 	selectById(id) {
