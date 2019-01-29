@@ -32,7 +32,7 @@ export default class NewListScreen extends AbstractRequestScreen {
 			headerRight: (
 				<Button 
 					title="Salvar"
-					onPress={() => params.saveShopList()} />
+					onPress={() => params.saveShopList(true)} />
 			),
 		};
 	};
@@ -67,11 +67,20 @@ export default class NewListScreen extends AbstractRequestScreen {
 		}
 	}
 
-	saveShopList = () => {
+	saveShopList = (close) => {
+		if (this.state.name.length < 2) {
+			this.setState({error: 'Por favor, digite um nome válido!'});
+			return;
+		}
+
 		this.setState({isLoading: true}, () => {
 			this.saveOrUpdate().then((shopList) => {
-				this.props.navigation.state.params.onBack(shopList);
-				this.props.navigation.goBack();
+				if (close) {
+					this.props.navigation.state.params.onBack(shopList);
+					this.props.navigation.goBack();
+				} else {
+					this.setState({id: shopList.id, isLoading: false});
+				}
 			}).catch((error) => {
 				this.setState({error, isLoading: false});
 			});
@@ -80,7 +89,7 @@ export default class NewListScreen extends AbstractRequestScreen {
 
 	saveOrUpdate = () => {
 		if (this.state.id) {
-			return DataManager.updateShopList(this.props.id, this.state.name, this.state.products);
+			return DataManager.updateShopList(this.state.id, this.state.name, this.state.products);
 		} else {
 			return DataManager.saveShopList(this.state.name, this.state.products);
 		}
@@ -103,7 +112,9 @@ export default class NewListScreen extends AbstractRequestScreen {
 		product.amount = 1;
 		product.totalValue = product.amount * product.value;
 		products.push(product);
-		this.setState({products, refresh: !this.state.refresh});
+		this.setState({products, refresh: !this.state.refresh}, () => {
+			this.saveShopList(false);
+		});
 	}
 
 	editAmountAndPrice = (item) => {
@@ -112,6 +123,19 @@ export default class NewListScreen extends AbstractRequestScreen {
 
 	updateProduct = (product) => {
 		product.totalValue = product.amount * product.value;
+		this.setState({isLoading: true}, () => {
+			DataManager.updateProductInShopList(product.id, product.amount, product.value).then((product) => {
+				const list = this.state.products;
+				list.forEach(value => {
+					if (value.id === item.id) {
+						value = product;
+					}
+				});
+				return list;
+			}).then((list) => {
+				this.setState({isLoading: false, products: list, refresh: !this.state.refresh});
+			});
+		});
 	}
 
 	editProduct = (item) => {
@@ -193,14 +217,17 @@ export default class NewListScreen extends AbstractRequestScreen {
 					<EditProductInListModal
 						product={this.state.selectedProduct}
 						visible={this.state.modalVisible}
-						onCloseModal={(product) => this.updateProduct(product)}
+						onRequestClose={(product) => this.updateProduct(product)}
 					/>
 				: null }
 				<TextInput 
 					placeholder="Descrição"
 					onChangeText={(text) => { this.setState({name: text}) }}
 					value={this.state.name}
-				/>
+				/>				
+				{ this.state.error ?
+					<Text>{this.state.error}</Text> 
+				: null }
 				{ this.props.id ?
 						<Text>ID: {this.props.id}</Text>
 				: null }

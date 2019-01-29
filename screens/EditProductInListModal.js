@@ -7,6 +7,7 @@ import {
   Button, 
   ActivityIndicator, 
   Picker, 
+  TouchableHighlight,
   Modal } from 'react-native';
 import DataManager from '../controllers/DataManager';
 import defaultStyles from '../utils/styles';
@@ -15,6 +16,11 @@ export default class EditProductInListModal extends React.Component {
 
   constructor(props) {
     super(props);
+
+    this.state = {
+      amount: 1, 
+      value: 1,
+    };
   }
 
   componentWillReceiveProps(newProps) {
@@ -25,8 +31,8 @@ export default class EditProductInListModal extends React.Component {
   }
 
   closeModal() {
-    if (this.props.onCloseModal) {
-      this.props.onCloseModal(this.state);
+    if (this.props.onRequestClose) {
+      this.props.onRequestClose(this.state);
     }
   }
   
@@ -36,7 +42,7 @@ export default class EditProductInListModal extends React.Component {
         animationType="slide"
         transparent={false}
         visible={this.props.visible}>
-        <View style={{marginTop: 22}}>
+        <View style={{marginTop: 62}}>
           <View>
             <Text>{this.props.product.name}</Text>
             <TextInput 

@@ -147,7 +147,7 @@ export default class OrderScreen extends AbstractRequestScreen {
 					<EditProductInListModal
 						product={this.state.selectedProduct}
 						visible={this.state.modalVisible}
-						onCloseModal={(product) => this.updateProduct(product)}
+						onRequestClose={(product) => this.updateProduct(product)}
 					/>
 				: null }
 				<Text>{this.state.name}</Text>
