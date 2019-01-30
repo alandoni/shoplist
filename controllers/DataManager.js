@@ -79,7 +79,11 @@ export default class DataManager {
       [ shopList ] = loadedShopList;
       return DataManager.getAllProductsInShopList(id);
     }).then((products) => {
-      shopList.products = products;
+      shopList.products = products.map((product) => {
+        const newProduct = product;
+        newProduct.totalValue = product.amount * product.value;
+        return newProduct;
+      });
       return shopList;
     });
   }

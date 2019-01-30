@@ -1,40 +1,24 @@
 import React from 'react';
 import {
-  StyleSheet,
   View,
   FlatList,
   Text,
   TextInput,
-  Button,
   TouchableOpacity,
-  ActivityIndicator,
   Alert,
 } from 'react-native';
-import { FloatingActionButton } from '../utils/custom-views-helper';
-import defaultStyles from '../utils/styles';
+import {
+  FloatingActionButton, NavigationButton, ProgressView, ErrorView,
+} from '../utils/custom-views-helper';
+import { defaultStyles } from '../utils/styles';
 import AbstractRequestScreen from './AbstractRequestScreen';
 import DataManager from '../controllers/DataManager';
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 22,
-  },
-  item: {
-    padding: 10,
-    fontSize: 18,
-    height: 44,
-  },
-});
 
 export default class SearchProductScreen extends AbstractRequestScreen {
   static navigationOptions = ({ navigation }) => ({
     title: 'Procurar Produto',
     headerRight: (
-      <Button
-        title="+"
-        onPress={() => navigation.navigate('NewProduct')}
-      />
+      <NavigationButton onPress={() => navigation.navigate('NewProduct')} title="+" />
     ),
   });
 
@@ -95,45 +79,37 @@ export default class SearchProductScreen extends AbstractRequestScreen {
   }
 
   renderItem = ({ item }) => (
-    <TouchableOpacity onPress={() => this.selectItem(item)}>
-      <Text style={styles.item}>
+    <TouchableOpacity onPress={() => this.selectItem(item)} style={defaultStyles.listItem}>
+      <Text style={[ defaultStyles.listItemTitle, defaultStyles.fill ]}>
         {item.name}
-        {' '}
-        -
-        {' '}
       </Text>
-      <Text style={styles.item}>{item.value}</Text>
+      <Text style={[ defaultStyles.listItemTitle, defaultStyles.currency, defaultStyles.horizontalMargins ]}>
+        {item.value}
+      </Text>
     </TouchableOpacity>
   )
 
   render() {
     if (this.state.isLoading) {
-      return (
-        <View style={[ styles.container, styles.horizontal ]}>
-          <ActivityIndicator size="large" color="#0000ff" />
-        </View>
-      );
+      return <ProgressView />;
     }
     if (this.state.error) {
-      return (
-        <View style={[ styles.container, styles.horizontal ]}>
-          <Text>{this.state.error}</Text>
-        </View>
-      );
+      return <ErrorView error={this.state.error} />;
     }
     return (
-      <View style={defaultStyles.fullHeght}>
+      <View style={defaultStyles.fullHeight}>
         <TextInput
           placeholder="Procurar produto"
           onChangeText={this.searchProduct}
           value={this.state.text}
+          style={[ defaultStyles.textInput, defaultStyles.verticalMargin ]}
         />
         <FlatList
           data={this.state.data}
           extraData={this.state.refresh}
           renderItem={this.renderItem}
           keyExtractor={item => item.id}
-          style={defaultStyles.fullHeght}
+          style={defaultStyles.fullHeight}
         />
         <FloatingActionButton onPress={this.createNewProduct} />
       </View>

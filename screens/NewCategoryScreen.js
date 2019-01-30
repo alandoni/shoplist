@@ -3,12 +3,12 @@ import {
   TextInput,
   Text,
   View,
-  Button,
   ActivityIndicator,
 } from 'react-native';
 import AbstractRequestScreen from './AbstractRequestScreen';
-import defaultStyles from '../utils/styles';
+import { defaultStyles } from '../utils/styles';
 import DataManager from '../controllers/DataManager';
+import { NavigationButton } from '../utils/custom-views-helper';
 
 export default class NewCategoryScreen extends AbstractRequestScreen {
   static navigationOptions = ({ navigation }) => {
@@ -16,10 +16,7 @@ export default class NewCategoryScreen extends AbstractRequestScreen {
     return {
       title: 'Nova Categoria',
       headerRight: (
-        <Button
-          title="Salvar"
-          onPress={() => params.saveCategory()}
-        />
+        <NavigationButton onPress={() => params.saveCategory()} title="Salvar" />
       ),
     };
   };
@@ -57,27 +54,30 @@ export default class NewCategoryScreen extends AbstractRequestScreen {
 
   render() {
     if (this.state.isLoading) {
-      return (
-        <View style={[ defaultStyles.container, defaultStyles.horizontal ]}>
-          <ActivityIndicator size="large" color="#0000ff" />
-        </View>
-      );
+      return <ProgressView />;
+    }
+    if (this.state.error) {
+      return <ErrorView error={this.state.error} />;
     }
     return (
       <View>
-        {this.props.id
-          ? (
-            <Text>
-              ID:
-              {this.props.id}
-            </Text>
-          )
-          : null}
         <TextInput
           placeholder="Nome"
           onChangeText={(text) => { this.setState({ name: text }); }}
           value={this.state.name}
+          style={[ defaultStyles.textInput, defaultStyles.verticalMargin ]}
         />
+        { this.state.validationError
+          ? <Text>{this.state.validationError}</Text>
+          : null }
+        { this.state.id ? (
+          <Text style={[ defaultStyles.lessRelevant, defaultStyles.marginBottom, defaultStyles.marginLeft ]}>
+            ID:
+            {' '}
+            {this.state.id}
+          </Text>
+        )
+          : null}
       </View>
     );
   }

@@ -1,11 +1,8 @@
 import React from 'react';
 import {
-  StyleSheet,
   View,
   Text,
-  Button,
   TouchableHighlight,
-  ActivityIndicator,
   FlatList,
   Alert,
 } from 'react-native';
@@ -15,18 +12,16 @@ import {
   MenuOption,
   MenuTrigger,
 } from 'react-native-popup-menu';
-import { FloatingActionButton } from '../utils/custom-views-helper';
+import {
+  FloatingActionButton,
+  ErrorView,
+  ProgressView,
+  MenuButton,
+  NavigationButton,
+} from '../utils/custom-views-helper';
 import DataManager from '../controllers/DataManager';
 import AbstractRequestScreen from './AbstractRequestScreen';
-import defaultStyles from '../utils/styles';
-
-const styles = StyleSheet.create({
-  item: {
-    padding: 10,
-    fontSize: 18,
-    height: 44,
-  },
-});
+import { defaultStyles } from '../utils/styles';
 
 export default class HomeScreen extends AbstractRequestScreen {
   static navigationOptions = ({ navigation }) => {
@@ -34,10 +29,7 @@ export default class HomeScreen extends AbstractRequestScreen {
     return {
       title: 'Listas de Compras',
       headerRight: (
-        <Button
-          title="+"
-          onPress={() => params.createNewShopList()}
-        />
+        <NavigationButton onPress={() => params.createNewShopList()} title="+" />
       ),
     };
   };
@@ -91,17 +83,16 @@ export default class HomeScreen extends AbstractRequestScreen {
 
   renderItem = ({ item }) => (
     <TouchableHighlight onPress={() => this.startOrder(item)}>
-      <View>
-        <Text>
+      <View style={defaultStyles.listItem}>
+        <Text style={[ defaultStyles.fill, defaultStyles.listItemTitle ]}>
           {item.name}
-          {' '}
-          -
-          {' '}
         </Text>
-        <Text>{item.totalValue}</Text>
+        <Text style={[ defaultStyles.currency, defaultStyles.horizontalMargins, defaultStyles.listItemTitle ]}>
+          {item.totalValue}
+        </Text>
         <Menu>
           <MenuTrigger>
-            <Text>...</Text>
+            <MenuButton />
           </MenuTrigger>
           <MenuOptions>
             <MenuOption onSelect={() => this.editList(item)} text="Editar" />
@@ -116,27 +107,19 @@ export default class HomeScreen extends AbstractRequestScreen {
 
   render() {
     if (this.state.isLoading) {
-      return (
-        <View style={[ defaultStyles.fullHeght, styles.horizontal ]}>
-          <ActivityIndicator size="large" color="#0000ff" />
-        </View>
-      );
+      return <ProgressView />;
     }
     if (this.state.error) {
-      return (
-        <View style={[ defaultStyles.fullHeght, styles.horizontal ]}>
-          <Text>this.state.error</Text>
-        </View>
-      );
+      return <ErrorView error={this.state.error} />;
     }
     return (
-      <View style={defaultStyles.fullHeght}>
+      <View style={defaultStyles.fullHeight}>
         <FlatList
           data={this.state.data}
           extraData={this.state.refresh}
           renderItem={this.renderItem}
           keyExtractor={item => item.id}
-          style={defaultStyles.fullHeght}
+          style={defaultStyles.fullHeight}
         />
         <FloatingActionButton onPress={this.createNewShopList} />
       </View>

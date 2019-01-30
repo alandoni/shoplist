@@ -3,13 +3,13 @@ import {
   TextInput,
   Text,
   View,
-  Button,
-  ActivityIndicator,
+  TouchableOpacity,
   Picker,
 } from 'react-native';
 import DataManager from '../controllers/DataManager';
 import AbstractRequestScreen from './AbstractRequestScreen';
-import defaultStyles from '../utils/styles';
+import { defaultStyles } from '../utils/styles';
+import { NavigationButton, ProgressView, ErrorView } from '../utils/custom-views-helper';
 
 export default class NewProductScreen extends AbstractRequestScreen {
   static navigationOptions = ({ navigation }) => {
@@ -17,10 +17,7 @@ export default class NewProductScreen extends AbstractRequestScreen {
     return {
       title: 'Novo Produto',
       headerRight: (
-        <Button
-          title="Salvar"
-          onPress={() => params.saveProduct()}
-        />
+        <NavigationButton onPress={() => params.saveProduct()} title="Salvar" />
       ),
     };
   };
@@ -63,7 +60,11 @@ export default class NewProductScreen extends AbstractRequestScreen {
       }
       const { refresh } = this.state;
       this.setState({
-        newData, category, error, isLoading: false, refresh: !refresh,
+        data: newData,
+        category,
+        error,
+        isLoading: false,
+        refresh: !refresh,
       });
     } else {
       super.onDataRequested(newData, error);
@@ -110,54 +111,65 @@ export default class NewProductScreen extends AbstractRequestScreen {
     this.setState({ data, category });
   }
 
-  renderCategory = category => (<Picker.Item label={category.name} value={category} key={category.id} />)
+  renderCategory = category => (
+    <Picker.Item 
+      label={category.name}
+      value={category}
+      key={category.id}
+      style={[ defaultStyles.textInput ]}
+    />
+  );
 
   render() {
     if (this.state.isLoading) {
-      return (
-        <View>
-          <ActivityIndicator size="large" color="#0000ff" />
-        </View>
-      );
+      return <ProgressView />;
     }
     if (this.state.error) {
-      return (
-        <View style={[ defaultStyles.container, defaultStyles.horizontal ]}>
-          <Text>{this.state.error}</Text>
-        </View>
-      );
+      return <ErrorView error={this.state.error} />;
     }
     return (
-      <View>
+      <View style={defaultStyles.fullHeight}>
+        <TextInput
+          placeholder="Nome"
+          onChangeText={(text) => { this.setState({ name: text }); }}
+          value={this.state.name}
+          style={[ defaultStyles.textInput, defaultStyles.marginTop ]}
+        />
         {this.state.id
           ? (
-            <Text>
+            <Text style={[ defaultStyles.lessRelevant, defaultStyles.marginBottom, defaultStyles.marginLeft ]}>
               ID:
+              {' '}
               {this.state.id}
             </Text>
           )
           : null}
         <TextInput
-          placeholder="Nome"
-          onChangeText={(text) => { this.setState({ name: text }); }}
-          value={this.state.name}
-        />
-        <TextInput
           placeholder="Valor"
           onChangeText={(text) => { this.setState({ value: text }); }}
           value={this.state.value}
+          style={[ defaultStyles.textInput, defaultStyles.marginTop ]}
         />
-        <Picker
-          selectedValue={this.state.category}
-          onValueChange={category => this.setState({ category })}
-        >
-          {this.state.data.categories.map(this.renderCategory)}
-        </Picker>
-        <Button title="Nova Categoria" onPress={this.newCategory} />
+        
+        <View>
+          <View style={defaultStyles.fullWidth}>
+            <Picker style={defaultStyles.fill}
+              selectedValue={this.state.category}
+              onValueChange={category => this.setState({ category })}
+            >
+              {this.state.data.categories.map(this.renderCategory)}
+            </Picker>
+            <TouchableOpacity onPress={this.newCategory} >
+              <Text>Nova Categoria</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         <TextInput
           placeholder="Observação"
           onChangeText={(text) => { this.setState({ notes: text }); }}
           value={this.state.notes}
+          style={[ defaultStyles.textInput, defaultStyles.marginTop ]}
         />
       </View>
     );

@@ -1,8 +1,13 @@
 import React from 'react';
 import { FloatingAction } from 'react-native-floating-action';
 import {
+  View,
   Text,
+  ActivityIndicator,
+  Image,
+  TouchableOpacity,
 } from 'react-native';
+import { defaultStyles, colors } from './styles';
 
 class FloatingActionButton extends React.Component {
   onPress = () => {
@@ -20,7 +25,7 @@ class FloatingActionButton extends React.Component {
     } ];
     return (
       <FloatingAction
-        color="#f4511e"
+        color={colors.red}
         overrideWithAction
         actions={actions}
         onPressItem={() => this.onPress()}
@@ -29,12 +34,38 @@ class FloatingActionButton extends React.Component {
   }
 }
 
-class ErrorView extends React.Component {
-  render() {
-    return (
-      <Text>{this.props.error.message}</Text>
-    );
-  }
+function ErrorView(props) {
+  return (
+    <View style={defaultStyles.fullHeight}>
+      <Text>{props.error.message}</Text>
+    </View>
+  );
 }
 
-export { FloatingActionButton, ErrorView };
+function ProgressView() {
+  return (
+    <View style={defaultStyles.fullHeight}>
+      <ActivityIndicator size="large" color="#0000ff" />
+    </View>
+  );
+}
+
+function MenuButton() {
+  return (
+    <Image style={[ defaultStyles.menuButton ]} source={require('../assets/menu.png')} />
+  );
+}
+
+function NavigationButton(props) {
+  return (
+    <TouchableOpacity onPress={() => props.onPress()}>
+      <Text style={defaultStyles.navigationButton}>
+        {props.title}
+      </Text>
+    </TouchableOpacity>
+  );
+}
+
+export {
+  FloatingActionButton, ErrorView, ProgressView, MenuButton, NavigationButton,
+};

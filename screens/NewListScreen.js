@@ -1,13 +1,10 @@
 import React from 'react';
 import {
-  StyleSheet,
   TouchableHighlight,
   View,
   Text,
   TextInput,
-  Button,
   FlatList,
-  ActivityIndicator,
   Alert,
 } from 'react-native';
 import {
@@ -16,24 +13,14 @@ import {
   MenuOption,
   MenuTrigger,
 } from 'react-native-popup-menu';
-import { FloatingActionButton } from '../utils/custom-views-helper';
+import {
+  FloatingActionButton, MenuButton, NavigationButton, ProgressView, ErrorView,
+} from '../utils/custom-views-helper';
 import EditProductInListModal from './EditProductInListModal';
 import DataManager from '../controllers/DataManager';
 import AbstractRequestScreen from './AbstractRequestScreen';
-import defaultStyles from '../utils/styles';
+import { defaultStyles } from '../utils/styles';
 import '../utils/utils';
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 22,
-  },
-  item: {
-    padding: 10,
-    fontSize: 18,
-    height: 44,
-  },
-});
 
 export default class NewListScreen extends AbstractRequestScreen {
   static navigationOptions = ({ navigation }) => {
@@ -41,10 +28,7 @@ export default class NewListScreen extends AbstractRequestScreen {
     return {
       title: 'Editar Lista de Compras',
       headerRight: (
-        <Button
-          title="Salvar"
-          onPress={() => params.saveShopList(true)}
-        />
+        <NavigationButton onPress={() => params.saveShopList()} title="Salvar" />
       ),
     };
   };
@@ -75,7 +59,13 @@ export default class NewListScreen extends AbstractRequestScreen {
     const { refresh } = this.state;
     if (data) {
       this.setState({
-        name: data.name, products: data.products, error, isLoading: false, refresh: !refresh,
+        name: data.name,
+        amount: data.amountProducts,
+        totalValue: data.totalValue,
+        products: data.products,
+        error,
+        isLoading: false,
+        refresh: !refresh,
       });
     } else {
       super.onDataRequested(data, error);
@@ -84,7 +74,7 @@ export default class NewListScreen extends AbstractRequestScreen {
 
   saveShopList = (close) => {
     if (this.state.name.length < 2) {
-      this.setState({ error: 'Por favor, digite um nome válido!' });
+      this.setState({ validationError: 'Por favor, digite um nome válido!' });
       return;
     }
 
@@ -191,29 +181,24 @@ export default class NewListScreen extends AbstractRequestScreen {
 
   renderItem = ({ item }) => (
     <TouchableHighlight onPress={() => { this.selectProduct(item); }}>
-      <View>
-        <Text>
-          {item.name}
-          {' '}
-          -
-          {' '}
+      <View style={defaultStyles.listItem}>
+        <View style={[ defaultStyles.fill ]}>
+          <Text style={[ defaultStyles.listItemTitle ]}>
+            {item.name}
+          </Text>
+          <Text style={[ defaultStyles.listItemSubtitle ]}>
+            {item.amount}
+            {' '}
+unidade(s) de
+            {item.value}
+          </Text>
+        </View>
+        <Text style={[ defaultStyles.listItemTitle, defaultStyles.currency, defaultStyles.horizontalMargins ]}>
+          {item.totalValue}
         </Text>
-        <Text>
-          {item.value}
-          {' '}
-          -
-          {' '}
-        </Text>
-        <Text>
-          {item.amount}
-          {' '}
-          -
-          {' '}
-        </Text>
-        <Text>{item.totalValue}</Text>
         <Menu>
           <MenuTrigger>
-            <Text>...</Text>
+            <MenuButton />
           </MenuTrigger>
           <MenuOptions>
             <MenuOption onSelect={() => this.editProduct(item)} text="Editar Produto" />
@@ -228,14 +213,13 @@ export default class NewListScreen extends AbstractRequestScreen {
 
   render() {
     if (this.state.isLoading) {
-      return (
-        <View style={[ styles.container, styles.horizontal ]}>
-          <ActivityIndicator size="large" color="#0000ff" />
-        </View>
-      );
+      return <ProgressView />;
+    }
+    if (this.state.error) {
+      return <ErrorView error={this.state.error} />;
     }
     return (
-      <View style={defaultStyles.fullHeght}>
+      <View style={defaultStyles.fullHeight}>
         {this.state.selectedProduct
           ? (
             <EditProductInListModal
@@ -249,26 +233,42 @@ export default class NewListScreen extends AbstractRequestScreen {
           placeholder="Descrição"
           onChangeText={(text) => { this.setState({ name: text }); }}
           value={this.state.name}
+          style={[ defaultStyles.textInput, defaultStyles.verticalMargin ]}
         />
-        {this.state.error
-          ? <Text>{this.state.error}</Text>
-          : null}
-        {this.props.id
+        { this.state.validationError
+          ? <Text>{this.state.validationError}</Text>
+          : null }
+        {this.state.id
           ? (
-            <Text>
+            <Text style={[ defaultStyles.lessRelevant, defaultStyles.marginBottom, defaultStyles.marginLeft ]}>
               ID:
-              {this.props.id}
+              {' '}
+              {this.state.id}
             </Text>
           )
           : null}
-        <FlatList
-          data={this.state.products}
-          extraData={this.state.refresh}
-          renderItem={this.renderItem}
-          keyExtractor={item => item.id}
-          style={defaultStyles.fullHeght}
-        />
-        <FloatingActionButton onPress={this.newProduct} />
+        <View style={defaultStyles.fullHeight}>
+          <FlatList
+            data={this.state.products}
+            extraData={this.state.refresh}
+            renderItem={this.renderItem}
+            keyExtractor={item => item.id}
+            style={defaultStyles.fullHeight}
+          />
+          <FloatingActionButton onPress={this.newProduct} />
+        </View>
+        <View style={defaultStyles.footer}>
+          <View style={defaultStyles.fullWidth}>
+            <View style={[ defaultStyles.fill ]}>
+              <Text style={defaultStyles.center}>Total de Produtos</Text>
+              <Text style={[ defaultStyles.listItemTitle, defaultStyles.center ]}>{this.state.amount}</Text>
+            </View>
+            <View style={[ defaultStyles.fill ]}>
+              <Text style={defaultStyles.center}>Valor Total</Text>
+              <Text style={[ defaultStyles.listItemTitle, defaultStyles.center ]}>{this.state.totalValue}</Text>
+            </View>
+          </View>
+        </View>
       </View>
     );
   }

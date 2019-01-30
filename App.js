@@ -13,36 +13,29 @@ import ProductsController from './controllers/ProductsController';
 import ProductsInOrdersController from './controllers/ProductsInOrdersController';
 import ProductsInShopListsController from './controllers/ProductsInShopListsController';
 import ShopListsController from './controllers/ShopListsController';
+import { colors } from './utils/styles';
 
 const AppNavigator = createStackNavigator(
   {
-    Home: {
-      screen: HomeScreen,
-    },
-    NewProduct: {
-      screen: NewProductScreen,
-    },
-    NewList: {
-      screen: NewListScreen,
-    },
-    NewCategory: {
-      screen: NewCategoryScreen,
-    },
-    SearchProduct: {
-      screen: SearchProductScreen,
-    },
-    OrderAction: {
-      screen: OrderScreen,
-    },
+    Home: HomeScreen,
+    NewProduct: NewProductScreen,
+    NewList: NewListScreen,
+    NewCategory: NewCategoryScreen,
+    SearchProduct: SearchProductScreen,
+    Order: OrderScreen,
   },
   {
     defaultNavigationOptions: {
       headerStyle: {
-        backgroundColor: '#f4511e',
+        backgroundColor: colors.red,
       },
-      headerTintColor: '#fff',
+      headerTintColor: colors.white,
       headerTitleStyle: {
         fontWeight: 'bold',
+      },
+      headerRightContainerStyle: {
+        paddingRight: 10,
+        backgroundColor: colors.red,
       },
     },
   },
