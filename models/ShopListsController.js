@@ -3,7 +3,7 @@ import {
   TEXT,
   INTEGER,
   REAL,
-} from './SqlDatabaseController';
+} from './SqlDatabaseHelper';
 import GenericSqlController from './GenericSqlController';
 
 export default class ShopListsController extends GenericSqlController {

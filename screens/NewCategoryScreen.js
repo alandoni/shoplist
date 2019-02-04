@@ -3,12 +3,11 @@ import {
   TextInput,
   Text,
   View,
-  ActivityIndicator,
 } from 'react-native';
 import AbstractRequestScreen from './AbstractRequestScreen';
 import { defaultStyles } from '../utils/styles';
 import DataManager from '../controllers/DataManager';
-import { NavigationButton } from '../utils/custom-views-helper';
+import { NavigationButton, ProgressView, ErrorView } from '../utils/custom-views-helper';
 
 export default class NewCategoryScreen extends AbstractRequestScreen {
   static navigationOptions = ({ navigation }) => {

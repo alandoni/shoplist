@@ -60,7 +60,7 @@ class ForeignKeyDescriptor {
   }
 }
 
-class SqlDatabaseController {
+class SqlDatabaseHelper {
   static fieldStringBuilder(field) {
     let properties = '';
     if (field.primaryKey) {
@@ -79,28 +79,28 @@ class SqlDatabaseController {
   static createTableStringBuilder(tableName, fields, foreignKeys) {
     const fieldsBuilder = fields.reduce((accumulator, currentValue) => {
       if (!accumulator.length) {
-        return `${SqlDatabaseController.fieldStringBuilder(currentValue)}`;
+        return `${SqlDatabaseHelper.fieldStringBuilder(currentValue)}`;
       }
-      return `${accumulator}, ${SqlDatabaseController.fieldStringBuilder(currentValue)}`;
+      return `${accumulator}, ${SqlDatabaseHelper.fieldStringBuilder(currentValue)}`;
     }, '');
 
     let foreignKeysBuilder = '';
     if (foreignKeys.length) {
       foreignKeysBuilder = foreignKeys.reduce((accumulator, currentValue) => `${accumulator}, `
-        + `${SqlDatabaseController.foreignKeyStringBuilder(currentValue)}`,
+        + `${SqlDatabaseHelper.foreignKeyStringBuilder(currentValue)}`,
       '');
     }
     return `${CREATE_TABLE} ${tableName} (${fieldsBuilder}${foreignKeysBuilder});`;
   }
 
   static createTable(tableName, fields, foreignKeys) {
-    const query = SqlDatabaseController.createTableStringBuilder(tableName, fields, foreignKeys);
-    return SqlDatabaseController.createTransaction(query);
+    const query = SqlDatabaseHelper.createTableStringBuilder(tableName, fields, foreignKeys);
+    return SqlDatabaseHelper.createTransaction(query);
   }
 
   static dropTable(tableName) {
     const query = `${DROP_TABLE} ${tableName}`;
-    return SqlDatabaseController.createTransaction(query);
+    return SqlDatabaseHelper.createTransaction(query);
   }
 
   static createTransaction(query, params) {
@@ -156,7 +156,7 @@ class SqlDatabaseController {
     }
     const query = `${SELECT} ${fieldsString} ${FROM} ${tableName} ${innerJoinString}`
       + ` ${whereString} ${orderByString} ${groupByString}`;
-    return SqlDatabaseController.createTransaction(query, params);
+    return SqlDatabaseHelper.createTransaction(query, params);
   }
 
   static insert(tableName, fields, params) {
@@ -174,7 +174,7 @@ class SqlDatabaseController {
       return `${accumulator}, ?`;
     }, '');
     const query = `${INSERT} ${tableName} (${fieldsStringBuilder}) ${VALUES} (${valuesStringBuilder});`;
-    return SqlDatabaseController.createTransaction(query, params);
+    return SqlDatabaseHelper.createTransaction(query, params);
   }
 
   static update(tableName, fields, whereCondition, params) {
@@ -191,7 +191,7 @@ class SqlDatabaseController {
     }
     const query = `${UPDATE} ${tableName} ${SET} ${fieldsStringBuilder} ${whereString}`;
 
-    return SqlDatabaseController.createTransaction(query, params);
+    return SqlDatabaseHelper.createTransaction(query, params);
   }
 
   static delete(tableName, whereCondition, params) {
@@ -201,10 +201,10 @@ class SqlDatabaseController {
     }
     const query = `${DELETE} ${tableName} ${whereString}`;
 
-    return SqlDatabaseController.createTransaction(query, params);
+    return SqlDatabaseHelper.createTransaction(query, params);
   }
 }
 
 export {
-  SqlDatabaseController, TEXT, INTEGER, REAL, FieldDescriptor, ForeignKeyDescriptor,
+  SqlDatabaseHelper, TEXT, INTEGER, REAL, FieldDescriptor, ForeignKeyDescriptor,
 };

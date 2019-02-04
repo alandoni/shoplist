@@ -19,9 +19,10 @@ import {
   MenuButton,
   NavigationButton,
 } from '../utils/custom-views-helper';
-import DataManager from '../controllers/DataManager';
 import AbstractRequestScreen from './AbstractRequestScreen';
 import { defaultStyles } from '../utils/styles';
+import HomeScreenPresenter from '../controllers/HomeScreenPresenter';
+import { formatCurrency } from '../utils/utils';
 
 export default class HomeScreen extends AbstractRequestScreen {
   static navigationOptions = ({ navigation }) => {
@@ -35,11 +36,12 @@ export default class HomeScreen extends AbstractRequestScreen {
   };
 
   componentDidMount() {
+    this.presenter = new HomeScreenPresenter();
     this.props.navigation.setParams({ createNewShopList: this.createNewShopList });
     super.componentDidMount();
   }
 
-  requestData = () => DataManager.getAllShopLists()
+  requestData = () => this.presenter.getAllShopLists();
 
   createNewShopList = () => {
     this.props.navigation.navigate('NewList', { onBack: () => this.request() });
@@ -74,10 +76,9 @@ export default class HomeScreen extends AbstractRequestScreen {
   }
 
   deleteShopList = (item) => {
-    this.setState({ isLoading: true }, () => DataManager.removeShopList(item.id).then(() => {
-      const { data, refresh } = this.state.data;
-      const list = data.filter(value => value.id !== item.id);
-      this.setState({ isLoading: false, data: list, refresh: !refresh });
+    this.setState({ isLoading: true }, () => this.presenter.deleteShopList(item).then((newList) => {
+      const { refresh } = this.state.refresh;
+      this.setState({ isLoading: false, data: newList, refresh: !refresh });
     }));
   }
 
@@ -88,7 +89,7 @@ export default class HomeScreen extends AbstractRequestScreen {
           {item.name}
         </Text>
         <Text style={[ defaultStyles.currency, defaultStyles.horizontalMargins, defaultStyles.listItemTitle ]}>
-          {item.totalValue}
+          {formatCurrency(item.totalValue)}
         </Text>
         <Menu>
           <MenuTrigger>

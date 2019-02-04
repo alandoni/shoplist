@@ -1,9 +1,9 @@
-import ProductsController from './ProductsController';
-import CategoriesController from './CategoriesController';
-import ShopListsController from './ShopListsController';
-import OrdersController from './OrdersController';
-import ProductsInShopListsController from './ProductsInShopListsController';
-import ProductsInOrdersController from './ProductsInOrdersController';
+import ProductsController from '../models/ProductsController';
+import CategoriesController from '../models/CategoriesController';
+import ShopListsController from '../models/ShopListsController';
+import OrdersController from '../models/OrdersController';
+import ProductsInShopListsController from '../models/ProductsInShopListsController';
+import ProductsInOrdersController from '../models/ProductsInOrdersController';
 
 export default class DataManager {
   // Products

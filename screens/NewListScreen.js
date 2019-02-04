@@ -17,10 +17,10 @@ import {
   FloatingActionButton, MenuButton, NavigationButton, ProgressView, ErrorView,
 } from '../utils/custom-views-helper';
 import EditProductInListModal from './EditProductInListModal';
-import DataManager from '../controllers/DataManager';
 import AbstractRequestScreen from './AbstractRequestScreen';
 import { defaultStyles } from '../utils/styles';
-import '../utils/utils';
+import NewListPresenter from '../controllers/NewListPresenter';
+import { formatCurrency } from '../utils/utils';
 
 export default class NewListScreen extends AbstractRequestScreen {
   static navigationOptions = ({ navigation }) => {
@@ -39,6 +39,8 @@ export default class NewListScreen extends AbstractRequestScreen {
     const name = this.props.navigation.getParam('name', '');
     const id = this.props.navigation.getParam('id', null);
 
+    this.presenter = new NewListPresenter(name, id);
+
     this.setState({
       name,
       id,
@@ -48,55 +50,29 @@ export default class NewListScreen extends AbstractRequestScreen {
     });
   }
 
-  requestData = () => {
-    if (this.state.id) {
-      return DataManager.getShopListById(this.state.id);
-    }
-    return Promise.resolve(null);
-  }
+  requestData = () => this.presenter.requestShopList();
 
   onDataRequested(data, error) {
-    const { refresh } = this.state;
     if (data) {
-      this.setState({
-        name: data.name,
-        amount: data.amountProducts,
-        totalValue: data.totalValue,
-        products: data.products,
-        error,
-        isLoading: false,
-        refresh: !refresh,
-      });
+      const { refresh } = this.state;
+      this.setState({ ...!refresh, isLoading: false, data });
     } else {
       super.onDataRequested(data, error);
     }
   }
 
   saveShopList = (close) => {
-    if (this.state.name.length < 2) {
-      this.setState({ validationError: 'Por favor, digite um nome válido!' });
-      return;
-    }
-
     this.setState({ isLoading: true }, () => {
-      this.saveOrUpdate().then((shopList) => {
+      this.presenter.saveShopList().then((shopList) => {
         if (close) {
           this.props.navigation.state.params.onBack(shopList);
           this.props.navigation.goBack();
         } else {
-          this.setState({ id: shopList.id, isLoading: false });
+          const { refresh } = this.state;
+          this.setState({ ...!refresh, isLoading: false, shopList });
         }
-      }).catch((error) => {
-        this.setState({ error, isLoading: false });
       });
     });
-  }
-
-  saveOrUpdate = () => {
-    if (this.state.id) {
-      return DataManager.updateShopList(this.state.id, this.state.name, this.state.products);
-    }
-    return DataManager.saveShopList(this.state.name, this.state.products);
   }
 
   selectProduct = (product) => {
@@ -112,13 +88,11 @@ export default class NewListScreen extends AbstractRequestScreen {
   }
 
   addProductToTheList = (product) => {
-    const newProduct = product;
-    const { products, refresh } = this.state;
-    newProduct.amount = 1;
-    newProduct.totalValue = product.amount * product.value;
-    products.push(newProduct);
-    this.setState({ products, refresh: !refresh }, () => {
-      this.saveShopList(false);
+    this.setState({ isLoading: true }, () => {
+      this.presenter.addProductToTheList(product).then((shopList) => {
+        const { refresh } = this.state;
+        this.setState({ ...!refresh, isLoading: false, shopList });
+      });
     });
   }
 
@@ -129,16 +103,9 @@ export default class NewListScreen extends AbstractRequestScreen {
   updateProduct = (product) => {
     const { selectProduct } = this.state;
     this.setState({ isLoading: true }, () => {
-      DataManager.updateProductInShopList(selectProduct.id, product.amount, product.value).then((storedProduct) => {
-        const { products, refresh } = this.state;
-        const newProduct = storedProduct;
-        newProduct.totalValue = storedProduct.amount * storedProduct.value;
-
-        products.setElement(newProduct, value => value.id === newProduct.id);
-
-        this.setState({
-          isLoading: false, products, refresh: !refresh, modalVisible: false,
-        });
+      this.presenter.updateProductInTheList(selectProduct, product.amount, product.value).then((shopList) => {
+        const { refresh } = this.state;
+        this.setState({ ...!refresh, isLoading: false, shopList });
       });
     });
   }
@@ -172,10 +139,9 @@ export default class NewListScreen extends AbstractRequestScreen {
   }
 
   deleteProductFromShopList = (item) => {
-    this.setState({ isLoading: true }, () => DataManager.removeProductFromShopList(item.id).then(() => {
-      const { products, refresh } = this.state;
-      const newList = products.filter(value => value.id !== item.id);
-      this.setState({ isLoading: false, products: newList, refresh: !refresh });
+    this.setState({ isLoading: true }, () => this.presenter.removeProductFromShopList(item.id).then((shopList) => {
+      const { refresh } = this.state;
+      this.setState({ ...!refresh, isLoading: false, shopList });
     }));
   }
 
@@ -187,14 +153,11 @@ export default class NewListScreen extends AbstractRequestScreen {
             {item.name}
           </Text>
           <Text style={[ defaultStyles.listItemSubtitle ]}>
-            {item.amount}
-            {' '}
-unidade(s) de
-            {item.value}
+            {item.amount} unidade(s) de {formatCurrency(item.value)}
           </Text>
         </View>
         <Text style={[ defaultStyles.listItemTitle, defaultStyles.currency, defaultStyles.horizontalMargins ]}>
-          {item.totalValue}
+          {formatCurrency(item.totalValue)}
         </Text>
         <Menu>
           <MenuTrigger>
@@ -241,9 +204,7 @@ unidade(s) de
         {this.state.id
           ? (
             <Text style={[ defaultStyles.lessRelevant, defaultStyles.marginBottom, defaultStyles.marginLeft ]}>
-              ID:
-              {' '}
-              {this.state.id}
+              ID: {this.state.id}
             </Text>
           )
           : null}
@@ -265,7 +226,9 @@ unidade(s) de
             </View>
             <View style={[ defaultStyles.fill ]}>
               <Text style={defaultStyles.center}>Valor Total</Text>
-              <Text style={[ defaultStyles.listItemTitle, defaultStyles.center ]}>{this.state.totalValue}</Text>
+              <Text style={[ defaultStyles.listItemTitle, defaultStyles.center ]}>
+                {formatCurrency(this.state.totalValue)}
+              </Text>
             </View>
           </View>
         </View>

@@ -4,8 +4,8 @@ import {
   INTEGER,
   REAL,
   ForeignKeyDescriptor,
-  SqlDatabaseController,
-} from './SqlDatabaseController';
+  SqlDatabaseHelper,
+} from './SqlDatabaseHelper';
 import GenericSqlController from './GenericSqlController';
 import ShopListsController from './ShopListsController';
 
@@ -24,22 +24,22 @@ export default class OrdersController extends GenericSqlController {
   getTableName = () => 'orders'
 
   selectAll() {
-    return SqlDatabaseController.select(this.getTableName(),
+    return SqlDatabaseHelper.select(this.getTableName(),
       null, null, this.getForeignKeysDescriptors()[0]).then(this.processData);
   }
 
   select(condition, params) {
-    return SqlDatabaseController.select(this.getTableName(),
+    return SqlDatabaseHelper.select(this.getTableName(),
       condition, params, this.getForeignKeysDescriptors()[0]);
   }
 
   selectById(id) {
-    return SqlDatabaseController.select(this.getTableName(), 'id = ?', [ id ],
+    return SqlDatabaseHelper.select(this.getTableName(), 'id = ?', [ id ],
       this.getForeignKeysDescriptors()[0]).then(this.processData);
   }
 
   selectByName(name) {
-    return SqlDatabaseController.select(this.getTableName(), 'name LIKE %?%', [ name ],
+    return SqlDatabaseHelper.select(this.getTableName(), 'name LIKE %?%', [ name ],
       this.getForeignKeysDescriptors()[0]).then(this.processData);
   }
 }

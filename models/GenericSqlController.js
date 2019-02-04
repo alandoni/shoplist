@@ -1,8 +1,8 @@
 import {
-  SqlDatabaseController,
+  SqlDatabaseHelper,
   FieldDescriptor,
   INTEGER,
-} from './SqlDatabaseController';
+} from './SqlDatabaseHelper';
 
 export default class GenericSqlController {
   getFieldDescriptors = () => []
@@ -19,17 +19,17 @@ export default class GenericSqlController {
 
   createTable() {
     const fields = [ new FieldDescriptor('id', INTEGER, true, true), ...this.getFieldDescriptors() ];
-    return SqlDatabaseController.createTable(this.getTableName(), fields, this.getForeignKeysDescriptors());
+    return SqlDatabaseHelper.createTable(this.getTableName(), fields, this.getForeignKeysDescriptors());
   }
 
   dropTable() {
-    return SqlDatabaseController.dropTable(this.getTableName());
+    return SqlDatabaseHelper.dropTable(this.getTableName());
   }
 
   insert(data) {
     const fieldNames = this.getFieldDescriptors().map(value => value.name);
     const fieldValues = fieldNames.map(value => data[value]);
-    return SqlDatabaseController.insert(this.getTableName(), fieldNames, fieldValues).then((id) => {
+    return SqlDatabaseHelper.insert(this.getTableName(), fieldNames, fieldValues).then((id) => {
       const newData = data;
       newData.id = id;
       return this.processData([ newData ]);
@@ -40,7 +40,7 @@ export default class GenericSqlController {
     const fieldNames = this.getFieldDescriptors().map(value => value.name);
     const fieldValues = fieldNames.map(value => data[value]);
     fieldValues.push(id);
-    return SqlDatabaseController.update(this.getTableName(), fieldNames,
+    return SqlDatabaseHelper.update(this.getTableName(), fieldNames,
       'id = ?', fieldValues).then(this.processData);
   }
 
@@ -48,20 +48,20 @@ export default class GenericSqlController {
     const fieldNames = this.getFieldDescriptors().map(value => value.name);
     const fieldValues = fieldNames.map(value => data[value]);
     fieldValues.push(params);
-    return SqlDatabaseController.update(this.getTableName(), fieldNames,
+    return SqlDatabaseHelper.update(this.getTableName(), fieldNames,
       condition, fieldValues).then(this.processData);
   }
 
   deleteById(id) {
-    return SqlDatabaseController.delete(this.getTableName(), 'id = ?', [ id ]);
+    return SqlDatabaseHelper.delete(this.getTableName(), 'id = ?', [ id ]);
   }
 
   delete(condition, params) {
-    return SqlDatabaseController.delete(this.getTableName(), condition, params);
+    return SqlDatabaseHelper.delete(this.getTableName(), condition, params);
   }
 
   deleteAll() {
-    return SqlDatabaseController.delete(this.getTableName());
+    return SqlDatabaseHelper.delete(this.getTableName());
   }
 
   fieldNames() {
@@ -71,21 +71,21 @@ export default class GenericSqlController {
   }
 
   selectAll() {
-    return SqlDatabaseController.select(this.getTableName(), this.fieldNames()).then(this.processData);
+    return SqlDatabaseHelper.select(this.getTableName(), this.fieldNames()).then(this.processData);
   }
 
   select(condition, params) {
-    return SqlDatabaseController.select(this.getTableName(), this.fieldNames(),
+    return SqlDatabaseHelper.select(this.getTableName(), this.fieldNames(),
       condition, params);
   }
 
   selectById(id) {
-    return SqlDatabaseController.select(this.getTableName(), this.fieldNames(),
+    return SqlDatabaseHelper.select(this.getTableName(), this.fieldNames(),
       'id = ?', [ id ]).then(this.processData);
   }
 
   selectByName(name) {
-    return SqlDatabaseController.select(this.getTableName(), this.fieldNames(),
+    return SqlDatabaseHelper.select(this.getTableName(), this.fieldNames(),
       'name LIKE %?%', [ name ]).then(this.processData);
   }
 }

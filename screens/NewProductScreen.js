@@ -112,7 +112,7 @@ export default class NewProductScreen extends AbstractRequestScreen {
   }
 
   renderCategory = category => (
-    <Picker.Item 
+    <Picker.Item
       label={category.name}
       value={category}
       key={category.id}
@@ -150,16 +150,17 @@ export default class NewProductScreen extends AbstractRequestScreen {
           value={this.state.value}
           style={[ defaultStyles.textInput, defaultStyles.marginTop ]}
         />
-        
+
         <View>
           <View style={defaultStyles.fullWidth}>
-            <Picker style={defaultStyles.fill}
+            <Picker
+              style={defaultStyles.fill}
               selectedValue={this.state.category}
               onValueChange={category => this.setState({ category })}
             >
               {this.state.data.categories.map(this.renderCategory)}
             </Picker>
-            <TouchableOpacity onPress={this.newCategory} >
+            <TouchableOpacity onPress={this.newCategory}>
               <Text>Nova Categoria</Text>
             </TouchableOpacity>
           </View>

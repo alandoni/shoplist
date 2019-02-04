@@ -1,7 +1,7 @@
 import {
   FieldDescriptor,
   TEXT,
-} from './SqlDatabaseController';
+} from './SqlDatabaseHelper';
 import GenericSqlController from './GenericSqlController';
 
 export default class CategoriesController extends GenericSqlController {

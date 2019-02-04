@@ -1,10 +1,10 @@
 import {
-  SqlDatabaseController,
+  SqlDatabaseHelper,
   FieldDescriptor,
   INTEGER,
   REAL,
   ForeignKeyDescriptor,
-} from './SqlDatabaseController';
+} from './SqlDatabaseHelper';
 import GenericSqlController from './GenericSqlController';
 import ProductsController from './ProductsController';
 import ShopListsController from './ShopListsController';
@@ -25,22 +25,22 @@ export default class ProductsInShopListsController extends GenericSqlController 
   getTableName = () => 'shoplistProducts'
 
   selectAll() {
-    return SqlDatabaseController.select(this.getTableName(), this.fieldNames(), null, null,
+    return SqlDatabaseHelper.select(this.getTableName(), this.fieldNames(), null, null,
       this.getForeignKeysDescriptors()[1], null, null).then(this.processData);
   }
 
   select(condition, params) {
-    return SqlDatabaseController.select(this.getTableName(), this.fieldNames(), condition, params,
+    return SqlDatabaseHelper.select(this.getTableName(), this.fieldNames(), condition, params,
       this.getForeignKeysDescriptors()[1], null, null).then(this.processData);
   }
 
   selectById(id) {
-    return SqlDatabaseController.select(this.getTableName(), this.fieldNames(), 'id = ?', [ id ],
+    return SqlDatabaseHelper.select(this.getTableName(), this.fieldNames(), 'id = ?', [ id ],
       this.getForeignKeysDescriptors()[1], null, null).then(this.processData);
   }
 
   selectByName(name) {
-    return SqlDatabaseController.select(this.getTableName(), this.fieldNames(), 'name LIKE %?%', [ name ],
+    return SqlDatabaseHelper.select(this.getTableName(), this.fieldNames(), 'name LIKE %?%', [ name ],
       this.getForeignKeysDescriptors()[1], null, null).then(this.processData);
   }
 }

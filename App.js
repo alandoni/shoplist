@@ -7,12 +7,12 @@ import NewListScreen from './screens/NewListScreen';
 import SearchProductScreen from './screens/SearchProductScreen';
 import OrderScreen from './screens/OrderScreen';
 import NewCategoryScreen from './screens/NewCategoryScreen';
-import CategoriesController from './controllers/CategoriesController';
-import OrdersController from './controllers/OrdersController';
-import ProductsController from './controllers/ProductsController';
-import ProductsInOrdersController from './controllers/ProductsInOrdersController';
-import ProductsInShopListsController from './controllers/ProductsInShopListsController';
-import ShopListsController from './controllers/ShopListsController';
+import CategoriesController from './models/CategoriesController';
+import OrdersController from './models/OrdersController';
+import ProductsController from './models/ProductsController';
+import ProductsInOrdersController from './models/ProductsInOrdersController';
+import ProductsInShopListsController from './models/ProductsInShopListsController';
+import ShopListsController from './models/ShopListsController';
 import { colors } from './utils/styles';
 
 const AppNavigator = createStackNavigator(

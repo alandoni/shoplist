@@ -33,6 +33,7 @@ module.exports = {
         "react/jsx-filename-extension": "off",
         "react/destructuring-assignment": "off",
         "space-before-function-paren": "off",
+        "react/jsx-one-expression-per-line": "off",
         "space-in-parens": "off",
         "vars-on-top": "error",
         "react/prop-types": "off",

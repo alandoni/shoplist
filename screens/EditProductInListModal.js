@@ -58,7 +58,7 @@ export default class EditProductInListModal extends React.Component {
               onPress={() => {
                 this.closeModal();
               }}
-              style={[defaultStyles.navigationButton, defaultStyles.verticalMargin]}
+              style={[ defaultStyles.navigationButton, defaultStyles.verticalMargin ]}
             >
               <Text>Salvar</Text>
             </TouchableHighlight>
