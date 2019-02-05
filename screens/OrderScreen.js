@@ -21,9 +21,9 @@ import {
   NavigationButton,
 } from '../utils/custom-views-helper';
 import AbstractRequestScreen from './AbstractRequestScreen';
-import DataManager from '../controllers/DataManager';
 import { defaultStyles } from '../utils/styles';
 import EditProductInListModal from './EditProductInListModal';
+import OrderPresenter from '../controllers/OrderPresenter';
 
 export default class OrderScreen extends AbstractRequestScreen {
   static navigationOptions = ({ navigation }) => ({
@@ -38,28 +38,22 @@ export default class OrderScreen extends AbstractRequestScreen {
 
     const name = this.props.navigation.getParam('name', '');
     const id = this.props.navigation.getParam('id', null);
+    const shopListId = this.props.navigation.getParam('shopListId', null);
 
-    this.setState({
-      name,
-      shopListId: id,
-      products: [],
-    }, () => {
+    this.presenter = new OrderPresenter(id, shopListId, name);
+
+    this.setState(this.presenter.order, () => {
       super.componentDidMount();
     });
   }
 
-  requestData = () => DataManager.getShopListById(this.state.shopListId);
+  requestData = () => this.presenter.getOrder();
 
   onDataRequested(data, error) {
     const { refresh } = this.state;
     if (data) {
       this.setState({
-        shopListId: data.shopListId,
-        name: data.name,
-        date: new Date(),
-        amount: data.amountProducts,
-        totalValue: data.totalValue,
-        data: data.products,
+        ...data,
         error,
         isLoading: false,
         refresh: !refresh,
@@ -71,24 +65,17 @@ export default class OrderScreen extends AbstractRequestScreen {
 
   saveOrder = (close) => {
     this.setState({ isLoading: true }, () => {
-      this.saveOrUpdate().then((order) => {
+      this.presenter.saveOrder().then((order) => {
         if (close) {
           this.props.navigation.state.params.onBack(order);
           this.props.navigation.goBack();
         } else {
-          this.setState({ id: order.id, isLoading: false });
+          this.setState({ ...order, isLoading: false });
         }
       }).catch((error) => {
         this.setState({ error, isLoading: false });
       });
     });
-  }
-
-  saveOrUpdate = () => {
-    if (this.state.id) {
-      return DataManager.updateOrder(this.state.id, this.state.shopListId, this.state.date, this.state.products);
-    }
-    return DataManager.saveOrder(this.state.shopListId, this.state.date, this.state.products);
   }
 
   selectProduct = (product) => {
@@ -104,13 +91,11 @@ export default class OrderScreen extends AbstractRequestScreen {
   }
 
   addProductToTheList = (product) => {
-    const newProduct = product;
-    const { products, refresh } = this.state;
-    newProduct.amount = 1;
-    newProduct.totalValue = product.amount * product.value;
-    products.push(newProduct);
-    this.setState({ products, refresh: !refresh }, () => {
-      this.saveOrder(false);
+    this.setState({ isLoading: true }, () => {
+      this.presenter.addProductToTheList(product).then((order) => {
+        const { refresh } = this.state;
+        this.setState({ ...order, refresh: !refresh, isLoading: false });
+      });
     });
   }
 
@@ -121,16 +106,9 @@ export default class OrderScreen extends AbstractRequestScreen {
   updateProduct = (product) => {
     const { selectProduct } = this.state;
     this.setState({ isLoading: true }, () => {
-      DataManager.updateProductInOrder(selectProduct.id, product.amount, product.value).then((storedProduct) => {
-        const { products, refresh } = this.state;
-        const newProduct = storedProduct;
-        newProduct.totalValue = storedProduct.amount * storedProduct.value;
-
-        products.setElement(newProduct, value => value.id === newProduct.id);
-
-        this.setState({
-          isLoading: false, products, refresh: !refresh, modalVisible: false,
-        });
+      this.presenter.updateProductInTheList(selectProduct, product.amount, product.value).then((order) => {
+        const { refresh } = this.state;
+        this.setState({ ...order, refresh: !refresh, isLoading: false });
       });
     });
   }
@@ -164,10 +142,9 @@ export default class OrderScreen extends AbstractRequestScreen {
   }
 
   deleteProductFromOrder = (item) => {
-    this.setState({ isLoading: true }, () => DataManager.removeProductFromOrder(item.id).then(() => {
-      const { products, refresh } = this.state;
-      const newList = products.filter(value => value.id !== item.id);
-      this.setState({ isLoading: false, products: newList, refresh: !refresh });
+    this.setState({ isLoading: true }, () => this.presenter.deleteProductFromList(item.id).then((order) => {
+      const { refresh } = this.state;
+      this.setState({ ...order, refresh: !refresh, isLoading: false });
     }));
   }
 

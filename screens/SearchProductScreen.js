@@ -12,7 +12,7 @@ import {
 } from '../utils/custom-views-helper';
 import { defaultStyles } from '../utils/styles';
 import AbstractRequestScreen from './AbstractRequestScreen';
-import DataManager from '../controllers/DataManager';
+import SearchProductPresenter from '../controllers/SearchProductPresenter';
 
 export default class SearchProductScreen extends AbstractRequestScreen {
   static navigationOptions = ({ navigation }) => ({
@@ -22,12 +22,11 @@ export default class SearchProductScreen extends AbstractRequestScreen {
     ),
   });
 
-  requestData = () => {
-    if (!this.state.text || this.state.text.length === 0) {
-      return DataManager.getAllProducts();
-    }
-    return DataManager.searchProductByName(this.state.text);
+  componentDidMount() {
+    this.presenter = new SearchProductPresenter();
   }
+
+  requestData = () => this.presenter.getProducts();
 
   createNewProduct = () => {
     this.props.navigation.navigate('NewProduct', {
@@ -39,6 +38,7 @@ export default class SearchProductScreen extends AbstractRequestScreen {
   }
 
   searchProduct = (text) => {
+    this.presenter.search(text);
     this.setState({ text }, () => {
       this.request();
     });
@@ -69,12 +69,9 @@ export default class SearchProductScreen extends AbstractRequestScreen {
   }
 
   deleteProduct = (item) => {
-    const { data, refresh } = this.state;
-    this.setState({ isLoading: true }, () => DataManager.removeProduct(item.id).then(() => {
-      const list = data;
-      return list.filter(value => value.id !== item.id);
-    }).then((newList) => {
-      this.setState({ isLoading: false, data: newList, refresh: !refresh });
+    const { refresh } = this.state;
+    this.setState({ isLoading: true }, () => this.presenter.deleteProduct(item).then((newList) => {
+      this.setState({ ...newList, isLoading: false, refresh: !refresh });
     }));
   }
 

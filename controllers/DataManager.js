@@ -73,19 +73,15 @@ export default class DataManager {
     return new ShopListsController().selectAll();
   }
 
-  static getShopListById(id) {
-    let shopList = null;
-    return new ShopListsController().selectById(id).then((loadedShopList) => {
-      [ shopList ] = loadedShopList;
-      return DataManager.getAllProductsInShopList(id);
-    }).then((products) => {
-      shopList.products = products.map((product) => {
-        const newProduct = product;
-        newProduct.totalValue = product.amount * product.value;
-        return newProduct;
-      });
-      return shopList;
+  static async getShopListById(id) {
+    const shopList = await new ShopListsController().selectById(id);
+    const products = await DataManager.getAllProductsInShopList(id);
+    shopList.products = products.map((product) => {
+      const newProduct = product;
+      newProduct.totalValue = product.amount * product.value;
+      return newProduct;
     });
+    return shopList;
   }
 
   static searchShopListByName(name) {
@@ -106,17 +102,21 @@ export default class DataManager {
     return { name, totalValue: productListInfo.totalValue, amountProducts: productListInfo.amount };
   }
 
-  static saveShopList(name, products) {
+  static async saveShopList(name, products) {
     const shopList = DataManager._createShopListObject(name, products);
-    return new ShopListsController().insert(shopList)
-      .then(newShopList => DataManager.insertProductsInShopList(newShopList[0].id, products));
+    const newShopList = await new ShopListsController().insert(shopList);
+    const newProducts = await DataManager.insertProductsInShopList(newShopList[0].id, products);
+    newShopList.products = newProducts;
+    return newShopList;
   }
 
-  static updateShopList(id, name, products) {
+  static async updateShopList(id, name, products) {
     const shopList = DataManager._createShopListObject(name, products);
-    return new ShopListsController().updateById(id, shopList)
-      .then(() => DataManager.removeAllProductsFromShopList(id))
-      .then(() => DataManager.insertProductsInShopList(id, products));
+    const updatedShopList = await new ShopListsController().updateById(id, shopList);
+    await DataManager.removeAllProductsFromShopList(id);
+    const newProducts = await DataManager.insertProductsInShopList(id, products);
+    updatedShopList.products = newProducts;
+    return updatedShopList;
   }
 
   static removeShopList(id) {
@@ -181,17 +181,21 @@ export default class DataManager {
     };
   }
 
-  static saveOrder(shoplistId, date, products) {
+  static async saveOrder(shoplistId, date, products) {
     const order = DataManager._createOrderObject(shoplistId, date, products);
-    return new OrdersController().insert(order)
-      .then(storedOrder => DataManager.insertProductsInOrder(storedOrder.id, products));
+    const storedOrder = await new OrdersController().insert(order);
+    const newProducts = await DataManager.insertProductsInOrder(storedOrder.id, products);
+    storedOrder.products = newProducts;
+    return products;
   }
 
-  static updateOrder(id, shoplistId, date, products) {
+  static async updateOrder(id, shoplistId, date, products) {
     const order = DataManager._createOrderObject(shoplistId, date, products);
-    return new OrdersController().updateById(id, order)
-      .then(() => DataManager.removeAllProductsFromOrder(id))
-      .then(() => DataManager.insertProductsInOrder(id, products));
+    const storedOrder = await new OrdersController().updateById(id, order);
+    await DataManager.removeAllProductsFromOrder(id);
+    const newProducts = await DataManager.insertProductsInOrder(id, products);
+    storedOrder.products = newProducts;
+    return products;
   }
 
   static removeOrder(id) {

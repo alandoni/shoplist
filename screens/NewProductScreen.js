@@ -6,10 +6,10 @@ import {
   TouchableOpacity,
   Picker,
 } from 'react-native';
-import DataManager from '../controllers/DataManager';
 import AbstractRequestScreen from './AbstractRequestScreen';
 import { defaultStyles } from '../utils/styles';
 import { NavigationButton, ProgressView, ErrorView } from '../utils/custom-views-helper';
+import NewProductPresenter from '../controllers/NewProductPresenter';
 
 export default class NewProductScreen extends AbstractRequestScreen {
   static navigationOptions = ({ navigation }) => {
@@ -25,54 +25,24 @@ export default class NewProductScreen extends AbstractRequestScreen {
   componentDidMount() {
     super.componentDidMount();
     this.props.navigation.setParams({ saveProduct: this.saveProduct });
-    this.setState({ id: this.props.navigation.getParam('id', null) });
+    const id = this.props.navigation.getParam('id', null);
+    this.setState({ id });
+    this.presenter = new NewProductPresenter(id);
   }
 
-  requestData = () => {
-    const data = {};
-    return DataManager.getAllCategories().then((categories) => {
-      data.categories = categories;
-      return this.requestProductIfNeeded();
-    }).then((product) => {
-      if (product) {
-        data.product = product;
-      }
-      return data;
-    });
-  }
-
-  requestProductIfNeeded = () => {
-    if (this.state.id) {
-      return DataManager.getProductById(this.state.id);
-    }
-    return Promise.resolve(null);
-  }
+  requestData = () => this.presenter.getCategoriesAndProductIfNeeded();
 
   onDataRequested(data, error) {
-    const newData = data;
-    if (newData) {
-      const category = data.categories[0];
-      if (newData.product) {
-        newData.name = data.product.name;
-        newData.value = data.product.value;
-        newData.category.id = data.product.category;
-        newData.notes = data.product.notes;
-      }
-      const { refresh } = this.state;
-      this.setState({
-        data: newData,
-        category,
-        error,
-        isLoading: false,
-        refresh: !refresh,
-      });
+    const { refresh } = this.state;
+    if (data) {
+      this.setState({ ...data, isLoading: false, refresh: !refresh });
     } else {
-      super.onDataRequested(newData, error);
+      super.onDataRequested(data, error);
     }
   }
 
   saveProduct = () => {
-    this.setState({ isLoading: true }, () => this.saveOrUpdate().then((product) => {
+    this.setState({ isLoading: true }, () => this.presenter.saveProduct().then((product) => {
       this.props.navigation.state.params.onBack(product);
       this.props.navigation.goBack();
     }).catch((error) => {
@@ -80,35 +50,13 @@ export default class NewProductScreen extends AbstractRequestScreen {
     }));
   }
 
-  saveOrUpdate() {
-    if (this.state.id) {
-      return DataManager.updateProduct(
-        this.props.id,
-        this.state.name,
-        this.state.value,
-        this.state.notes,
-        this.state.category.id,
-      );
-    }
-    return DataManager.saveProduct(
-      this.state.name,
-      this.state.value,
-      this.state.notes,
-      this.state.category.id,
-    );
-  }
-
   newCategory = () => {
     this.props.navigation.navigate('NewCategory', { onBack: category => this.addCategory(category) });
   }
 
   addCategory = (category) => {
-    const { categories } = this.state.data;
-    categories.push(category);
-
-    const { data } = this.state;
-    data.categories = categories;
-    this.setState({ data, category });
+    this.presenter.addCategory(category);
+    this.setState({ categories: this.presenter.categories, category: this.presenter.category });
   }
 
   renderCategory = category => (
@@ -119,6 +67,26 @@ export default class NewProductScreen extends AbstractRequestScreen {
       style={[ defaultStyles.textInput ]}
     />
   );
+
+  setName = (name) => {
+    this.presenter.setName(name);
+    this.setState({ name });
+  }
+
+  setValue = (value) => {
+    this.presenter.setValue(value);
+    this.setState({ value });
+  }
+
+  setCategory = (category) => {
+    this.presenter.setCategory(category);
+    this.setState({ category });
+  }
+
+  setNotes = (notes) => {
+    this.presenter.setNotes(notes);
+    this.setState({ notes });
+  }
 
   render() {
     if (this.state.isLoading) {
@@ -131,22 +99,20 @@ export default class NewProductScreen extends AbstractRequestScreen {
       <View style={defaultStyles.fullHeight}>
         <TextInput
           placeholder="Nome"
-          onChangeText={(text) => { this.setState({ name: text }); }}
+          onChangeText={this.setName}
           value={this.state.name}
           style={[ defaultStyles.textInput, defaultStyles.marginTop ]}
         />
         {this.state.id
           ? (
             <Text style={[ defaultStyles.lessRelevant, defaultStyles.marginBottom, defaultStyles.marginLeft ]}>
-              ID:
-              {' '}
-              {this.state.id}
+              ID: {this.state.id}
             </Text>
           )
           : null}
         <TextInput
           placeholder="Valor"
-          onChangeText={(text) => { this.setState({ value: text }); }}
+          onChangeText={this.setValue}
           value={this.state.value}
           style={[ defaultStyles.textInput, defaultStyles.marginTop ]}
         />
@@ -156,9 +122,9 @@ export default class NewProductScreen extends AbstractRequestScreen {
             <Picker
               style={defaultStyles.fill}
               selectedValue={this.state.category}
-              onValueChange={category => this.setState({ category })}
+              onValueChange={this.setCategory}
             >
-              {this.state.data.categories.map(this.renderCategory)}
+              {this.state.categories.map(this.renderCategory)}
             </Picker>
             <TouchableOpacity onPress={this.newCategory}>
               <Text>Nova Categoria</Text>
@@ -168,7 +134,7 @@ export default class NewProductScreen extends AbstractRequestScreen {
 
         <TextInput
           placeholder="Observação"
-          onChangeText={(text) => { this.setState({ notes: text }); }}
+          onChangeText={this.setNotes}
           value={this.state.notes}
           style={[ defaultStyles.textInput, defaultStyles.marginTop ]}
         />

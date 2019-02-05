@@ -91,7 +91,7 @@ export default class NewListScreen extends AbstractRequestScreen {
     this.setState({ isLoading: true }, () => {
       this.presenter.addProductToTheList(product).then((shopList) => {
         const { refresh } = this.state;
-        this.setState({ ...!refresh, isLoading: false, shopList });
+        this.setState({ ...shopList, refresh: !refresh, isLoading: false });
       });
     });
   }
@@ -105,7 +105,7 @@ export default class NewListScreen extends AbstractRequestScreen {
     this.setState({ isLoading: true }, () => {
       this.presenter.updateProductInTheList(selectProduct, product.amount, product.value).then((shopList) => {
         const { refresh } = this.state;
-        this.setState({ ...!refresh, isLoading: false, shopList });
+        this.setState({ ...shopList, refresh: !refresh, isLoading: false });
       });
     });
   }
@@ -139,10 +139,15 @@ export default class NewListScreen extends AbstractRequestScreen {
   }
 
   deleteProductFromShopList = (item) => {
-    this.setState({ isLoading: true }, () => this.presenter.removeProductFromShopList(item.id).then((shopList) => {
+    this.setState({ isLoading: true }, () => this.presenter.deleteProductFromList(item.id).then((shopList) => {
       const { refresh } = this.state;
       this.setState({ ...!refresh, isLoading: false, shopList });
     }));
+  }
+
+  setName = (name) => {
+    this.setState({ name });
+    this.presenter.setName(name);
   }
 
   renderItem = ({ item }) => (
@@ -194,7 +199,7 @@ export default class NewListScreen extends AbstractRequestScreen {
           : null}
         <TextInput
           placeholder="Descrição"
-          onChangeText={(text) => { this.setState({ name: text }); }}
+          onChangeText={this.setName}
           value={this.state.name}
           style={[ defaultStyles.textInput, defaultStyles.verticalMargin ]}
         />

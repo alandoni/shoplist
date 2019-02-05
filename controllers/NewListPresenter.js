@@ -8,52 +8,52 @@ export default class NewListPresenter {
     };
   }
 
-  requestShopList() {
-    if (!this.id) {
-      return Promise.resolve(this.shopList);
-    }
-    return DataManager.getShopListById(this.id).then((shopList) => {
-      this.shopList = shopList;
+  async requestShopList() {
+    if (!this.shopList.id) {
       return this.shopList;
-    });
+    }
+    const shopList = await DataManager.getShopListById(this.id);
+    this.shopList = shopList;
+    return this.shopList;
   }
 
-  saveShopList() {
+  async saveShopList() {
     if (this.name.length < 2) {
       throw new ValidationError('Por favor, digite um nome válido!' );
     }
 
-    return this.saveOrUpdate().then((shopList) => {
-      this.shopList = shopList;
-      return this.shopList;
-    });
-  }
-
-  saveOrUpdate = () => {
-    if (this.id) {
-      return DataManager.updateShopList(this.id, this.name, this.products);
+    if (this.shopList.id) {
+      this.shopList = await DataManager.updateShopList(this.id, this.name, this.products);
+    } else {
+      this.shopList = await DataManager.saveShopList(this.name, this.products);
     }
-    return DataManager.saveShopList(this.name, this.products);
+    return this.shopList;
   }
 
-  addProductToTheList = product => this.saveShopList().then((shopList) => {
+  async addProductToTheList(product) {
+    this.shopList = await this.saveShopList();
     const newProduct = product;
     newProduct.amount = 1;
     newProduct.totalValue = product.amount * product.value;
     this.shopList.products.push(newProduct);
-    return shopList;
-  });
+    return this.shopList;
+  }
 
-  updateProductInTheList = (product, amount, value) => DataManager.updateProductInShopList(product.id, amount, value)
-    .then((storedProduct) => {
-      const newProduct = storedProduct;
-      newProduct.totalValue = storedProduct.amount * storedProduct.value;
-      this.shopList.products.setElement(newProduct, element => element.id === newProduct.id);
-      return this.shopList;
-    });
+  async updateProductInTheList(product, amount, value) {
+    const storedProduct = await DataManager.updateProductInShopList(product.id, amount, value);
+    const newProduct = storedProduct;
+    newProduct.totalValue = storedProduct.amount * storedProduct.value;
+    this.shopList.products.setElement(newProduct, element => element.id === newProduct.id);
+    return this.shopList;
+  }
 
-  deleteProductFromList = product => DataManager.removeProductFromShopList(product.id).then(() => {
+  async deleteProductFromList(product) {
+    await DataManager.removeProductFromShopList(product.id);
     this.shopList.products = this.shopList.products.filter(value => value.id !== product.id);
     return this.shopList;
-  });
+  }
+
+  setName(name) {
+    this.shopList.name = name;
+  }
 }

@@ -6,8 +6,8 @@ import {
 } from 'react-native';
 import AbstractRequestScreen from './AbstractRequestScreen';
 import { defaultStyles } from '../utils/styles';
-import DataManager from '../controllers/DataManager';
 import { NavigationButton, ProgressView, ErrorView } from '../utils/custom-views-helper';
+import NewCategoryPresenter from '../controllers/NewCategoryPresenter';
 
 export default class NewCategoryScreen extends AbstractRequestScreen {
   static navigationOptions = ({ navigation }) => {
@@ -20,23 +20,19 @@ export default class NewCategoryScreen extends AbstractRequestScreen {
     };
   };
 
-  constructor(props) {
-    super(props);
-
-    this.state = { name: '', value: '' };
-  }
-
   componentDidMount() {
     super.componentDidMount();
     this.props.navigation.setParams({ saveCategory: this.saveCategory });
-    this.setState({ id: this.props.navigation.getParam('id', null) });
+    const id = this.props.navigation.getParam('id', null);
+    this.setState({ id });
+    this.presenter = new NewCategoryPresenter(id);
   }
 
   saveCategory = () => {
     this.setState({ isLoading: true }, () => {
-      this.saveOrUpdate().then((category) => {
+      this.presenter.saveCategory().then((category) => {
         const { navigation } = this.props;
-        navigation.state.params.onBack(category[0]);
+        navigation.state.params.onBack(category);
         navigation.goBack();
       }).catch((error) => {
         this.setState({ error, isLoading: false });
@@ -44,11 +40,9 @@ export default class NewCategoryScreen extends AbstractRequestScreen {
     });
   }
 
-  saveOrUpdate() {
-    if (this.state.id) {
-      return DataManager.updateCategory(this.props.id, this.state.name);
-    }
-    return DataManager.saveCategory(this.state.name);
+  setName = (name) => {
+    this.presenter.setName(name);
+    this.setState({ name });
   }
 
   render() {
@@ -62,7 +56,7 @@ export default class NewCategoryScreen extends AbstractRequestScreen {
       <View>
         <TextInput
           placeholder="Nome"
-          onChangeText={(text) => { this.setState({ name: text }); }}
+          onChangeText={this.setName}
           value={this.state.name}
           style={[ defaultStyles.textInput, defaultStyles.verticalMargin ]}
         />
@@ -71,9 +65,7 @@ export default class NewCategoryScreen extends AbstractRequestScreen {
           : null }
         { this.state.id ? (
           <Text style={[ defaultStyles.lessRelevant, defaultStyles.marginBottom, defaultStyles.marginLeft ]}>
-            ID:
-            {' '}
-            {this.state.id}
+            ID: {this.state.id}
           </Text>
         )
           : null}
