@@ -13,6 +13,7 @@ import {
 import { defaultStyles } from '../utils/styles';
 import AbstractRequestScreen from './AbstractRequestScreen';
 import SearchProductPresenter from '../controllers/SearchProductPresenter';
+import { formatCurrency } from '../utils/utils';
 
 export default class SearchProductScreen extends AbstractRequestScreen {
   static navigationOptions = ({ navigation }) => ({
@@ -24,6 +25,7 @@ export default class SearchProductScreen extends AbstractRequestScreen {
 
   componentDidMount() {
     this.presenter = new SearchProductPresenter();
+    super.componentDidMount();
   }
 
   requestData = () => this.presenter.getProducts();
@@ -81,7 +83,7 @@ export default class SearchProductScreen extends AbstractRequestScreen {
         {item.name}
       </Text>
       <Text style={[ defaultStyles.listItemTitle, defaultStyles.currency, defaultStyles.horizontalMargins ]}>
-        {item.value}
+        {formatCurrency(item.value)}
       </Text>
     </TouchableOpacity>
   )

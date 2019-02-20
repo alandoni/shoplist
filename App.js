@@ -1,12 +1,12 @@
 import React from 'react';
 import { createStackNavigator, createAppContainer } from 'react-navigation';
 import { MenuProvider } from 'react-native-popup-menu';
-import HomeScreen from './screens/HomeScreen';
-import NewProductScreen from './screens/NewProductScreen';
-import NewListScreen from './screens/NewListScreen';
-import SearchProductScreen from './screens/SearchProductScreen';
-import OrderScreen from './screens/OrderScreen';
-import NewCategoryScreen from './screens/NewCategoryScreen';
+import HomeScreen from './views/HomeScreen';
+import NewProductScreen from './views/NewProductScreen';
+import NewListScreen from './views/NewListScreen';
+import SearchProductScreen from './views/SearchProductScreen';
+import OrderScreen from './views/OrderScreen';
+import NewCategoryScreen from './views/NewCategoryScreen';
 import CategoriesController from './models/CategoriesController';
 import OrdersController from './models/OrdersController';
 import ProductsController from './models/ProductsController';

@@ -7,9 +7,14 @@ const colors = {
   lighterGray: '#f1efef',
   white: '#fafafa',
   black: '#000000',
+  yellow: '#fffedf',
 };
 
 const defaultStyles = StyleSheet.create({
+  test: {
+    backgroundColor: 'blue',
+    color: 'white',
+  },
   fullHeight: {
     flex: 1,
     flexDirection: 'column',
@@ -20,6 +25,10 @@ const defaultStyles = StyleSheet.create({
   },
   fill: {
     flex: 1,
+  },
+  column: {
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
   listItem: {
     padding: 10,
@@ -39,6 +48,14 @@ const defaultStyles = StyleSheet.create({
   menuButton: {
     width: 26,
     height: 26,
+  },
+  button: {
+    backgroundColor: colors.red,
+    color: colors.white,
+    paddingVertical: 3,
+    paddingHorizontal: 10,
+    textAlign: 'center',
+    marginHorizontal: 10
   },
   navigationButton: {
     backgroundColor: colors.red,
@@ -90,6 +107,23 @@ const defaultStyles = StyleSheet.create({
     justifyContent: 'center',
     textAlign: 'center',
   },
+  error: {
+    marginLeft: 10,
+    paddingLeft: 8,
+    marginRight: 10,
+    paddingRight: 8,
+    borderColor: colors.red,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    backgroundColor: colors.yellow,
+    color: colors.red,
+  },
+  modal: {
+    backgroundColor: 'white',
+    margin: 0, // This is the important style you need to set
+    alignItems: undefined,
+    justifyContent: undefined,
+  }
 });
 
 export { defaultStyles, colors };

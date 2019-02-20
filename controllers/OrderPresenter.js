@@ -10,14 +10,14 @@ export default class OrderPresenter {
 
   async getOrder() {
     if (this.order.id) {
+      this.order = await DataManager.getOrderById(this.order.id);
+    } else {
       const shopList = await DataManager.getShopListById(this.order.shopListId);
       this.order.shopListId = shopList.id;
       this.order.name = shopList.name;
       this.order.products = shopList.products;
       this.order.totalValue = shopList.totalValue;
       this.order.amountProducts = shopList.amountProducts;
-    } else {
-      this.order = await DataManager.getOrderById(this.order.id);
     }
     return this.order;
   }

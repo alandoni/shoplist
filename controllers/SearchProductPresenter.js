@@ -21,7 +21,7 @@ export default class SearchProductPresenter {
 
   async deleteProduct(product) {
     await DataManager.removeProduct(product.id);
-    this.products.filter(value => value.id !== product.id);
+    this.products = this.products.filter(value => value.id !== product.id);
     return this.products;
   }
 }

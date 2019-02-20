@@ -39,12 +39,12 @@ export default class ProductsController extends GenericSqlController {
   }
 
   selectById(id) {
-    return SqlDatabaseHelper.select(this.getTableName(), this.fieldNames(), 'id = ?', [ id ],
-      this.getForeignKeysDescriptors()[0], null, this.getFieldDescriptors()[3].name).then(this.processData);
+    return SqlDatabaseHelper.select(this.getTableName(), this.fieldNames(), `${this.getTableName()}.id = ?`, [ id ],
+      this.getForeignKeysDescriptors()[0], null, null).then(this.processData);
   }
 
   selectByName(name) {
-    return SqlDatabaseHelper.select(this.getTableName(), this.fieldNames(), 'name LIKE %?%', [ name ],
+    return SqlDatabaseHelper.select(this.getTableName(), this.fieldNames(), `${this.getTableName()}.name LIKE %?%`, [ name ],
       this.getForeignKeysDescriptors()[0], null, this.getFieldDescriptors()[3].name).then(this.processData);
   }
 }

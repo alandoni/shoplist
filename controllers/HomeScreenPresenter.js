@@ -8,7 +8,7 @@ export default class HomeScreenPresenter {
 
   async deleteShopList(shopList) {
     await DataManager.removeShopList(shopList.id);
-    this.list.filter(value => value.id !== shopList.id);
+    this.list = this.list.filter(value => value.id !== shopList.id);
     return this.list;
   }
 }

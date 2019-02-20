@@ -16,10 +16,18 @@ class ValidationError extends Error {
 }
 
 function formatCurrency(value) {
-  return `R$ ${(`${value}`).replace('.', ',')}`;
+  const fixedValue = value.toFixed(2);
+  const replaceDot = `${fixedValue}`.replace('.', ',');
+  return `R$ ${replaceDot}`;
+}
+
+function parseCurrency(value) {
+  const replaceComma = value.replace(',', '.').substr(3);
+  return parseFloat(replaceComma);
 }
 
 export {
   ValidationError,
   formatCurrency,
+  parseCurrency,
 };

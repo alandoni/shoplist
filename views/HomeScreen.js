@@ -49,7 +49,7 @@ export default class HomeScreen extends AbstractRequestScreen {
 
   startOrder = (item) => {
     const { navigate } = this.props.navigation;
-    navigate('Order', { name: item.name, id: item.id });
+    navigate('Order', { name: item.name, shopListId: item.id });
   }
 
   editList = (item) => {

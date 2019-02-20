@@ -17,15 +17,16 @@ export default class NewProductPresenter {
     if (!this.product.id) {
       return this.product;
     }
-    this.product = await DataManager.getProductById(this.id);
+    this.product = await DataManager.getProductById(this.product.id);
     return this.product;
   }
 
   async getCategoriesAndProductIfNeeded() {
     await this.getAllCategories();
     await this.requestProduct();
+
     return {
-      product: this.product,
+      ...this.product,
       categories: this.categories,
       category: this.categories[0],
     };

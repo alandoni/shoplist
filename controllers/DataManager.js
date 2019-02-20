@@ -11,26 +11,26 @@ export default class DataManager {
     return new ProductsController().selectAll();
   }
 
-  static getProductById(id) {
-    return new ProductsController().selectById(id);
+  static async getProductById(id) {
+    return (await new ProductsController().selectById(id))[0];
   }
 
   static searchProductByName(name) {
     return new ProductsController().selectByName(name);
   }
 
-  static saveProduct(name, value, notes, category) {
+  static async saveProduct(name, value, notes, category) {
     const product = {
       name, notes, value, category,
     };
-    return new ProductsController().insert(product);
+    return (await new ProductsController().insert(product))[0];
   }
 
-  static updateProduct(id, name, value, notes, category) {
+  static async updateProduct(id, name, value, notes, category) {
     const product = {
       name, value, notes, category,
     };
-    return new ProductsController().updateById(id, product);
+    return (await new ProductsController().updateById(id, product))[0];
   }
 
   static removeProduct(id) {
@@ -46,20 +46,20 @@ export default class DataManager {
     return new CategoriesController().selectAll();
   }
 
-  static getCategoryById(id) {
-    return new CategoriesController().selectById(id);
+  static async getCategoryById(id) {
+    return (await new CategoriesController().selectById(id))[0];
   }
 
   static searchCategoryByName(name) {
     return new CategoriesController().selectByName(name);
   }
 
-  static saveCategory(name) {
+  static async saveCategory(name) {
     const category = { name };
-    return new CategoriesController().insert(category);
+    return (await new CategoriesController().insert(category))[0];
   }
 
-  static updateCategory(id, name) {
+  static async updateCategory(id, name) {
     const category = { name };
     return new CategoriesController().updateById(id, category);
   }
@@ -74,7 +74,7 @@ export default class DataManager {
   }
 
   static async getShopListById(id) {
-    const shopList = await new ShopListsController().selectById(id);
+    const shopList = (await new ShopListsController().selectById(id))[0];
     const products = await DataManager.getAllProductsInShopList(id);
     shopList.products = products.map((product) => {
       const newProduct = product;
@@ -104,15 +104,15 @@ export default class DataManager {
 
   static async saveShopList(name, products) {
     const shopList = DataManager._createShopListObject(name, products);
-    const newShopList = await new ShopListsController().insert(shopList);
-    const newProducts = await DataManager.insertProductsInShopList(newShopList[0].id, products);
+    const newShopList = (await new ShopListsController().insert(shopList))[0];
+    const newProducts = await DataManager.insertProductsInShopList(newShopList.id, products);
     newShopList.products = newProducts;
     return newShopList;
   }
 
   static async updateShopList(id, name, products) {
     const shopList = DataManager._createShopListObject(name, products);
-    const updatedShopList = await new ShopListsController().updateById(id, shopList);
+    const updatedShopList = (await new ShopListsController().updateById(id, shopList))[0];
     await DataManager.removeAllProductsFromShopList(id);
     const newProducts = await DataManager.insertProductsInShopList(id, products);
     updatedShopList.products = newProducts;
@@ -139,16 +139,16 @@ export default class DataManager {
     )));
   }
 
-  static insertProductInShopList(shoplistId, productId, amount, value) {
+  static async insertProductInShopList(shoplistId, productId, amount, value) {
     const productInShopList = {
       shoplistId, productId, amount, value,
     };
-    return new ProductsInShopListsController().insert(productInShopList);
+    return (await new ProductsInShopListsController().insert(productInShopList))[0];
   }
 
-  static updateProductInShopList(id, amount, value) {
+  static async updateProductInShopList(id, amount, value) {
     const productInShopList = { amount, value };
-    return new ProductsInShopListsController().updateById(id, productInShopList);
+    return (await new ProductsInShopListsController().updateById(id, productInShopList))[0];
   }
 
   static removeProductFromShopList(id) {
@@ -164,8 +164,8 @@ export default class DataManager {
     return new OrdersController().selectAll();
   }
 
-  static getOrderById(id) {
-    return new OrdersController().selectById(id);
+  static async getOrderById(id) {
+    return (await new OrdersController().selectById(id))[0];
   }
 
   static _createOrderObject(shoplistId, date, products) {
@@ -183,7 +183,7 @@ export default class DataManager {
 
   static async saveOrder(shoplistId, date, products) {
     const order = DataManager._createOrderObject(shoplistId, date, products);
-    const storedOrder = await new OrdersController().insert(order);
+    const storedOrder = (await new OrdersController().insert(order))[0];
     const newProducts = await DataManager.insertProductsInOrder(storedOrder.id, products);
     storedOrder.products = newProducts;
     return products;
@@ -191,7 +191,7 @@ export default class DataManager {
 
   static async updateOrder(id, shoplistId, date, products) {
     const order = DataManager._createOrderObject(shoplistId, date, products);
-    const storedOrder = await new OrdersController().updateById(id, order);
+    const storedOrder = (await new OrdersController().updateById(id, order))[0];
     await DataManager.removeAllProductsFromOrder(id);
     const newProducts = await DataManager.insertProductsInOrder(id, products);
     storedOrder.products = newProducts;
@@ -217,16 +217,16 @@ export default class DataManager {
     )));
   }
 
-  static insertProductInOrder(orderId, productId, amount, value) {
+  static async insertProductInOrder(orderId, productId, amount, value) {
     const productInOrder = {
       orderId, productId, amount, value,
     };
-    return new ProductsInOrdersController().insert(productInOrder);
+    return (await new ProductsInOrdersController().insert(productInOrder))[0];
   }
 
-  static updateProductInOrder(id, amount, value) {
+  static async updateProductInOrder(id, amount, value) {
     const productInOrder = { amount, value };
-    return new ProductsInOrdersController().updateById(id, productInOrder);
+    return (await new ProductsInOrdersController().updateById(id, productInOrder))[0];
   }
 
   static removeProductFromOrder(id) {

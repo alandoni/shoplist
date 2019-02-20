@@ -10,9 +10,9 @@ export default class NewCategoryPresenter {
 
   async saveCategory() {
     if (this.category.id) {
-      this.category = await DataManager.updateCategory(this.category.id, this.category.name)[0];
+      this.category = await DataManager.updateCategory(this.category.id, this.category.name);
     } else {
-      this.category = await DataManager.saveCategory(this.category.name)[0];
+      this.category = await DataManager.saveCategory(this.category.name);
     }
     return this.category;
   }

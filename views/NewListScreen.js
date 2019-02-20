@@ -20,7 +20,7 @@ import EditProductInListModal from './EditProductInListModal';
 import AbstractRequestScreen from './AbstractRequestScreen';
 import { defaultStyles } from '../utils/styles';
 import NewListPresenter from '../controllers/NewListPresenter';
-import { formatCurrency } from '../utils/utils';
+import { formatCurrency, ValidationError } from '../utils/utils';
 
 export default class NewListScreen extends AbstractRequestScreen {
   static navigationOptions = ({ navigation }) => {
@@ -55,7 +55,7 @@ export default class NewListScreen extends AbstractRequestScreen {
   onDataRequested(data, error) {
     if (data) {
       const { refresh } = this.state;
-      this.setState({ ...!refresh, isLoading: false, data });
+      this.setState({ ...data, refresh: !refresh, isLoading: false });
     } else {
       super.onDataRequested(data, error);
     }
@@ -89,9 +89,14 @@ export default class NewListScreen extends AbstractRequestScreen {
 
   addProductToTheList = (product) => {
     this.setState({ isLoading: true }, () => {
-      this.presenter.addProductToTheList(product).then((shopList) => {
+      this.presenter.addProductToTheList(product)
+      .then((shopList) => {
         const { refresh } = this.state;
         this.setState({ ...shopList, refresh: !refresh, isLoading: false });
+      }).catch((error) => {
+        if (error instanceof ValidationError) {
+          this.setState({validationError: error, isLoading: false});
+        }
       });
     });
   }
@@ -187,7 +192,7 @@ export default class NewListScreen extends AbstractRequestScreen {
       return <ErrorView error={this.state.error} />;
     }
     return (
-      <View style={defaultStyles.fullHeight}>
+      <View>
         {this.state.selectedProduct
           ? (
             <EditProductInListModal
@@ -196,44 +201,46 @@ export default class NewListScreen extends AbstractRequestScreen {
               onRequestClose={product => this.updateProduct(product)}
             />
           )
-          : null}
-        <TextInput
-          placeholder="Descrição"
-          onChangeText={this.setName}
-          value={this.state.name}
-          style={[ defaultStyles.textInput, defaultStyles.verticalMargin ]}
-        />
-        { this.state.validationError
-          ? <Text>{this.state.validationError}</Text>
-          : null }
-        {this.state.id
-          ? (
-            <Text style={[ defaultStyles.lessRelevant, defaultStyles.marginBottom, defaultStyles.marginLeft ]}>
-              ID: {this.state.id}
-            </Text>
-          )
-          : null}
+          : null} 
         <View style={defaultStyles.fullHeight}>
-          <FlatList
-            data={this.state.products}
-            extraData={this.state.refresh}
-            renderItem={this.renderItem}
-            keyExtractor={item => item.id}
-            style={defaultStyles.fullHeight}
+          <TextInput
+            placeholder="Descrição"
+            onChangeText={this.setName}
+            value={this.state.name}
+            style={[ defaultStyles.textInput, defaultStyles.verticalMargin ]}
           />
-          <FloatingActionButton onPress={this.newProduct} />
-        </View>
-        <View style={defaultStyles.footer}>
-          <View style={defaultStyles.fullWidth}>
-            <View style={[ defaultStyles.fill ]}>
-              <Text style={defaultStyles.center}>Total de Produtos</Text>
-              <Text style={[ defaultStyles.listItemTitle, defaultStyles.center ]}>{this.state.amount}</Text>
-            </View>
-            <View style={[ defaultStyles.fill ]}>
-              <Text style={defaultStyles.center}>Valor Total</Text>
-              <Text style={[ defaultStyles.listItemTitle, defaultStyles.center ]}>
-                {formatCurrency(this.state.totalValue)}
+          { this.state.validationError
+            ? <Text style={defaultStyles.error}>{this.state.validationError.message}</Text>
+            : null }
+          {this.state.id
+            ? (
+              <Text style={[ defaultStyles.lessRelevant, defaultStyles.marginBottom, defaultStyles.marginLeft ]}>
+                ID: {this.state.id}
               </Text>
+            )
+            : null}
+          <View style={defaultStyles.fullHeight}>
+            <FlatList
+              data={this.state.products}
+              extraData={this.state.refresh}
+              renderItem={this.renderItem}
+              keyExtractor={item => item.id}
+              style={defaultStyles.fullHeight}
+            />
+            <FloatingActionButton onPress={this.newProduct} />
+          </View>
+          <View style={defaultStyles.footer}>
+            <View style={defaultStyles.fullWidth}>
+              <View style={[ defaultStyles.fill ]}>
+                <Text style={defaultStyles.center}>Total de Produtos</Text>
+                <Text style={[ defaultStyles.listItemTitle, defaultStyles.center ]}>{this.state.amountProducts}</Text>
+              </View>
+              <View style={[ defaultStyles.fill ]}>
+                <Text style={defaultStyles.center}>Valor Total</Text>
+                <Text style={[ defaultStyles.listItemTitle, defaultStyles.center ]}>
+                  {formatCurrency(this.state.totalValue)}
+                </Text>
+              </View>
             </View>
           </View>
         </View>

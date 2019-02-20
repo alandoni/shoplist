@@ -138,11 +138,11 @@ class SqlDatabaseHelper {
     }
     let orderByString = '';
     if (orderBy) {
-      orderByString = `${ORDER_BY} ${orderBy}`;
+      orderByString = `${ORDER_BY} ${tableName}.${orderBy}`;
     }
     let groupByString = '';
     if (groupBy) {
-      groupByString = `${GROUP_BY} ${groupBy}`;
+      groupByString = `${GROUP_BY} ${tableName}.${groupBy}`;
     }
     let whereString = '';
     if (whereCondition) {

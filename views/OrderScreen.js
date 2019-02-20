@@ -226,7 +226,7 @@ export default class OrderScreen extends AbstractRequestScreen {
           <View style={defaultStyles.fullWidth}>
             <View style={[ defaultStyles.fill ]}>
               <Text style={defaultStyles.center}>Total de Produtos</Text>
-              <Text style={[ defaultStyles.listItemTitle, defaultStyles.center ]}>{this.state.amount}</Text>
+              <Text style={[ defaultStyles.listItemTitle, defaultStyles.center ]}>{this.state.amountProducts}</Text>
             </View>
             <View style={[ defaultStyles.fill ]}>
               <Text style={defaultStyles.center}>Valor Total</Text>
