@@ -1,4 +1,4 @@
-export default class ShopListsRepository {
+export default class OrdersRepository {
   async getAll() {
   }
 
@@ -8,10 +8,10 @@ export default class ShopListsRepository {
   async searchByName(name) {
   }
 
-  async save(shopList) {
+  async save(order) {
   }
 
-  async update(id, shopList) {
+  async update(id, order) {
   }
 
   async remove(id) {

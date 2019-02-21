@@ -1,59 +1,92 @@
 import DataManager from './DataManager';
 import { ValidationError } from '../utils/utils';
+import StateObservable from './../StateObservable';
+import ShopListsRepositoryImpl from '../../data/repositories/ShopListsRepositoryImpl';
+import SaveShopListUseCase from '../../domain/use-cases/SaveShopListUseCase';
+import ProductsInShopListsRepositoryImpl from '../../data/repositories/ProductsInShopListsRepositoryImpl';
+import AddProductToShopListUseCase from '../../domain/use-cases/AddProductToShopListUseCase';
 
-export default class NewListPresenter {
-  constructor(name, id) {
-    this.shopList = {
-      name, id, products: [], amountProducts: 0, totalValue: 0,
+export default class NewListPresenter extends StateObservable {
+  constructor(observer, name, id) {
+    this.addObserver(observer);
+    this.state = {
+      shopList: {
+        name, id, products: [], amountProducts: 0, totalValue: 0,
+      },
+      isLoading: true,
+      error: null,
+      refresh: false,
     };
   }
 
   async requestShopList() {
-    if (!this.shopList.id) {
-      return this.shopList;
+    if (this.shopList.id) {
+      this.state.isLoading = true;
+      this.notifyObservers(this.state);
+      this.shopList = await new getShopListById(new ShopListsRepositoryImpl()).execute(this.state.shopList.id);
+      this.state.isLoading = false;
+      this.state.refresh = !this.state.refresh;
+      this.notifyObservers(this.state);
     }
-    const shopList = await DataManager.getShopListById(this.id);
-    this.shopList = shopList;
-    return this.shopList;
   }
 
   async saveShopList() {
-    if (this.shopList.name.length < 2) {
-      throw new ValidationError('Por favor, digite um nome válido!' );
-    }
-
-    if (this.shopList.id) {
-      this.shopList = await DataManager.updateShopList(this.id, this.name, this.products);
-    } else {
-      this.shopList = await DataManager.saveShopList(this.name, this.shopList.products);
-    }
-    return this.shopList;
+    this.state.isLoading = true;
+    this.notifyObservers(this.state);
+    this.shopList = await new SaveShopListUseCase(
+      new ShopListsRepositoryImpl(),
+      new ProductsInShopListsRepositoryImpl()).execute(this.state.shopList);
+    this.state.isLoading = false;
+    this.notifyObservers(this.state);
   }
 
   async addProductToTheList(product) {
-    const newProduct = product;
-    newProduct.amount = 1;
-    newProduct.totalValue = product.amount * product.value;
-    this.shopList.products.push(newProduct);
-    this.shopList = await this.saveShopList();
-    return this.shopList;
+    this.state.isLoading = true;
+    this.notifyObservers(this.state);
+
+    this.state.shopList.products.push(product);
+    await new AddProductToShopListUseCase(
+      new ShopListsRepositoryImpl(), 
+      new ProductsInShopListsRepositoryImpl()).execute(new ProductInShopList(product.id, shopList.id, 1, product.value));
+
+    this.state.isLoading = false;
+    this.state.refresh = !this.state.refresh;
+    this.notifyObservers(this.state);
   }
 
   async updateProductInTheList(product, amount, value) {
+    this.state.isLoading = true;
+    this.notifyObservers(this.state);
+
     const newProduct = product;
     newProduct.totalValue = product.amount * product.value;
-    this.shopList.products.setElement(newProduct, element => element.id === newProduct.id);
-    await DataManager.updateProductInShopList(product.id, amount, value);
-    return this.shopList;
+    this.state.shopList.products.setElement(newProduct, element => element.id === newProduct.id);
+
+    await new UpdateProductInShopListUseCase(
+      new ShopListsRepositoryImpl(), 
+      new ProductsInShopListsRepositoryImpl()).execute(product.id, amount, value);
+
+    this.state.isLoading = false;
+    this.state.refresh = !this.state.refresh;
+    this.notifyObservers(this.state);
   }
 
   async deleteProductFromList(product) {
-    await DataManager.removeProductFromShopList(product.id);
-    this.shopList.products = this.shopList.products.filter(value => value.id !== product.id);
-    return this.shopList;
+    this.state.isLoading = true;
+    this.notifyObservers(this.state);
+
+    await new removeProductFromShopList(
+      new ShopListsRepositoryImpl(), 
+      new ProductsInShopListsRepositoryImpl()).execute(product.id);
+    this.state.shopList.products = this.state.shopList.products.filter(value => value.id !== product.id);
+
+    this.state.isLoading = false;
+    this.state.refresh = !this.state.refresh;
+    this.notifyObservers(this.state);
   }
 
   setName(name) {
-    this.shopList.name = name;
+    this.state.shopList.name = name;
+    this.notifyObservers(this.state);
   }
 }

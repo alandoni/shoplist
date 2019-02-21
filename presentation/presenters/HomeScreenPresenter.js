@@ -5,7 +5,6 @@ import StateObservable from '../StateObservable';
 
 export default class HomeScreenPresenter extends StateObservable {
   constructor(observer) {
-    super();
     this.addObserver(observer);
     this.state = {
       isLoading: true, refresh: false, error: null, data: null,
