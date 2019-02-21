@@ -12,9 +12,6 @@ Array.prototype.setElement = (newValue, conditionCallback) => {
   }
 };
 
-class ValidationError extends Error {
-}
-
 function formatCurrency(value) {
   const fixedValue = value.toFixed(2);
   const replaceDot = `${fixedValue}`.replace('.', ',');
@@ -27,7 +24,6 @@ function parseCurrency(value) {
 }
 
 export {
-  ValidationError,
   formatCurrency,
   parseCurrency,
 };

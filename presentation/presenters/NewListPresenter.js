@@ -1,13 +1,14 @@
-import DataManager from './DataManager';
 import { ValidationError } from '../utils/utils';
 import StateObservable from './../StateObservable';
 import ShopListsRepositoryImpl from '../../data/repositories/ShopListsRepositoryImpl';
 import SaveShopListUseCase from '../../domain/use-cases/SaveShopListUseCase';
 import ProductsInShopListsRepositoryImpl from '../../data/repositories/ProductsInShopListsRepositoryImpl';
 import AddProductToShopListUseCase from '../../domain/use-cases/AddProductToShopListUseCase';
+import GetShopListByIdUseCase from '../../domain/use-cases/GetShopListByIdUseCase';
 
 export default class NewListPresenter extends StateObservable {
   constructor(observer, name, id) {
+    super();
     this.addObserver(observer);
     this.state = {
       shopList: {
@@ -20,20 +21,21 @@ export default class NewListPresenter extends StateObservable {
   }
 
   async requestShopList() {
-    if (this.shopList.id) {
+    if (this.state.shopList.id) {
       this.state.isLoading = true;
       this.notifyObservers(this.state);
-      this.shopList = await new getShopListById(new ShopListsRepositoryImpl()).execute(this.state.shopList.id);
-      this.state.isLoading = false;
-      this.state.refresh = !this.state.refresh;
-      this.notifyObservers(this.state);
+      this.state.shopList = await new GetShopListByIdUseCase(new ShopListsRepositoryImpl()).execute(this.state.shopList.id);
+      console.log(this.state.shopList);
     }
+    this.state.isLoading = false;
+    this.state.refresh = !this.state.refresh;
+    this.notifyObservers(this.state);
   }
 
   async saveShopList() {
     this.state.isLoading = true;
     this.notifyObservers(this.state);
-    this.shopList = await new SaveShopListUseCase(
+    this.state.shopList = await new SaveShopListUseCase(
       new ShopListsRepositoryImpl(),
       new ProductsInShopListsRepositoryImpl()).execute(this.state.shopList);
     this.state.isLoading = false;
@@ -75,7 +77,7 @@ export default class NewListPresenter extends StateObservable {
     this.state.isLoading = true;
     this.notifyObservers(this.state);
 
-    await new removeProductFromShopList(
+    await new RemoveProductFromShopListUseCase(
       new ShopListsRepositoryImpl(), 
       new ProductsInShopListsRepositoryImpl()).execute(product.id);
     this.state.shopList.products = this.state.shopList.products.filter(value => value.id !== product.id);

@@ -3,6 +3,7 @@ import CategoriesRepository from '../../domain/repositories/CategoriesRepository
 
 export default class CategoriesRepositoryImpl extends CategoriesRepository {
   constructor() {
+    super();
     this.dataStore = new CategoriesDAO();
   }
 

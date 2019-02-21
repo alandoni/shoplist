@@ -1,5 +1,4 @@
 import UseCase from './UseCase';
-import SaveShopListUseCase from './SaveShopListUseCase';
 
 export default class AddProductToShopListUseCase extends UseCase {
   constructor(shopListsRepository, productsInShopListsRepository) {
@@ -9,11 +8,11 @@ export default class AddProductToShopListUseCase extends UseCase {
   }
 
   async run(product) {
-    const productStored = (await this.productsInShopListsRepository.save(product))[0];
-    const products = await this.productsInShopListsRepository.getByShopListId(product.shopListId);
+    const productStored = (await this.productsInShopListsRepository.update(product.id, product))[0];
     const shopList = await this.shopListsRepository.getById(product.shopListId);
+    const products = await this.productsInShopListsRepository.getByShopListId(product.shopListId);
     shopList.products = products;
-    new UpdateTotalsForShopListUseCase(this.shopListsRepository).execute(shopList);
+    await new UpdateTotalsForShopListUseCase(this.shopListsRepository).execute(shopList);
     return productStored;
   }
 }

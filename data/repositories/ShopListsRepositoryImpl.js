@@ -3,6 +3,7 @@ import ShopListsRepository from './../../domain/repositories/ShopListsRepository
 
 export default class ShopListsRepositoryImpl extends ShopListsRepository {
   constructor() {
+    super();
     this.dataStore = new ShopListsDAO();
   }
 

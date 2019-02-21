@@ -3,6 +3,7 @@ import OrdersRepository from '../../domain/repositories/OrdersRepository';
 
 export default class OrdersRepositoryImpl extends OrdersRepository {
   constructor() {
+    super();
     this.dataStore = new OrdersDAO();
   }
 

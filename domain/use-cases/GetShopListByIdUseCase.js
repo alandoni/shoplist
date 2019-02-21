@@ -1,12 +1,13 @@
 import UseCase from './UseCase';
 
-export default class GetAllShopListsUseCase extends UseCase {
+export default class GetShopListsUseCase extends UseCase {
   constructor(shopListsRepository, productsInShopListsRepository) {
+    super();
     this.shopListsRepository = shopListsRepository;
     this.productsInShopListsRepository = productsInShopListsRepository;
   }
 
-  async _execute(id) {
+  async run(id) {
     const shopList = await this.shopListsRepository.getShopListById(id);
     const products = await this.productsInShopListsRepository.getPByShopListId(id);
     shopList.products = products.map((product) => {

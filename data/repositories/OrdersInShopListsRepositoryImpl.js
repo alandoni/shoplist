@@ -3,6 +3,7 @@ import ProductsInOrdersRepository from '../../domain/repositories/ProductsInOrde
 
 export default class ProductsInOrdersRepositoryImpl extends ProductsInOrdersRepository {
   constructor() {
+    super();
     this.dataStore = new ProductsInOrdersDAO();
   }
 

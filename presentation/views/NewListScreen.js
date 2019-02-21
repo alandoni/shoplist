@@ -17,12 +17,11 @@ import {
   FloatingActionButton, MenuButton, NavigationButton, ProgressView, ErrorView,
 } from '../utils/custom-views-helper';
 import EditProductInListModal from './EditProductInListModal';
-import AbstractRequestScreen from './AbstractRequestScreen';
 import { defaultStyles } from '../utils/styles';
-import NewListPresenter from '../controllers/NewListPresenter';
+import NewListPresenter from '../presenters/NewListPresenter';
 import { formatCurrency, ValidationError } from '../utils/utils';
 
-export default class NewListScreen extends AbstractRequestScreen {
+export default class NewListScreen extends React.Component {
   static navigationOptions = ({ navigation }) => {
     const { params = {} } = navigation.state;
     return {
@@ -33,45 +32,34 @@ export default class NewListScreen extends AbstractRequestScreen {
     };
   };
 
+  constructor(props) {
+    super(props);
+
+    this.state = { isLoading: true };
+  }
+
   componentDidMount() {
     this.props.navigation.setParams({ saveShopList: this.saveShopList });
 
     const name = this.props.navigation.getParam('name', '');
     const id = this.props.navigation.getParam('id', null);
 
-    this.presenter = new NewListPresenter(name, id);
+    this.presenter = new NewListPresenter(this, name, id);
+    this.requestData();
+  }
 
-    this.setState({
-      name,
-      id,
-      products: [],
-    }, () => {
-      super.componentDidMount();
-    });
+  update(newState) {
+    this.setState(newState);
   }
 
   requestData = () => this.presenter.requestShopList();
 
-  onDataRequested(data, error) {
-    if (data) {
-      const { refresh } = this.state;
-      this.setState({ ...data, refresh: !refresh, isLoading: false });
-    } else {
-      super.onDataRequested(data, error);
-    }
-  }
-
   saveShopList = (close) => {
-    this.setState({ isLoading: true }, () => {
-      this.presenter.saveShopList().then((shopList) => {
-        if (close) {
-          this.props.navigation.state.params.onBack(shopList);
-          this.props.navigation.goBack();
-        } else {
-          const { refresh } = this.state;
-          this.setState({ ...!refresh, isLoading: false, shopList });
-        }
-      });
+    this.presenter.saveShopList().then(() => {
+      if (close) {
+        this.props.navigation.state.params.onBack(shopList);
+        this.props.navigation.goBack();
+      }
     });
   }
 
@@ -88,17 +76,7 @@ export default class NewListScreen extends AbstractRequestScreen {
   }
 
   addProductToTheList = (product) => {
-    this.setState({ isLoading: true }, () => {
-      this.presenter.addProductToTheList(product)
-      .then((shopList) => {
-        const { refresh } = this.state;
-        this.setState({ ...shopList, refresh: !refresh, isLoading: false });
-      }).catch((error) => {
-        if (error instanceof ValidationError) {
-          this.setState({validationError: error, isLoading: false});
-        }
-      });
-    });
+    this.presenter.addProductToTheList(product);
   }
 
   editAmountAndPrice = (item) => {
@@ -107,12 +85,7 @@ export default class NewListScreen extends AbstractRequestScreen {
 
   updateProduct = (product) => {
     const { selectProduct } = this.state;
-    this.setState({ isLoading: true }, () => {
-      this.presenter.updateProductInTheList(selectProduct, product.amount, product.value).then((shopList) => {
-        const { refresh } = this.state;
-        this.setState({ ...shopList, refresh: !refresh, isLoading: false });
-      });
-    });
+    this.presenter.updateProductInTheList(selectProduct, product.amount, product.value);
   }
 
   editProduct = (item) => {
@@ -144,14 +117,10 @@ export default class NewListScreen extends AbstractRequestScreen {
   }
 
   deleteProductFromShopList = (item) => {
-    this.setState({ isLoading: true }, () => this.presenter.deleteProductFromList(item.id).then((shopList) => {
-      const { refresh } = this.state;
-      this.setState({ ...!refresh, isLoading: false, shopList });
-    }));
+    this.presenter.deleteProductFromList(item.id);
   }
 
   setName = (name) => {
-    this.setState({ name });
     this.presenter.setName(name);
   }
 
@@ -206,22 +175,23 @@ export default class NewListScreen extends AbstractRequestScreen {
           <TextInput
             placeholder="Descrição"
             onChangeText={this.setName}
-            value={this.state.name}
+            value={this.state.shopList.name}
             style={[ defaultStyles.textInput, defaultStyles.verticalMargin ]}
           />
+          
           { this.state.validationError
             ? <Text style={defaultStyles.error}>{this.state.validationError.message}</Text>
             : null }
-          {this.state.id
+          {this.state.shopList.id
             ? (
               <Text style={[ defaultStyles.lessRelevant, defaultStyles.marginBottom, defaultStyles.marginLeft ]}>
-                ID: {this.state.id}
+                ID: {this.state.shopList.id}
               </Text>
             )
             : null}
           <View style={defaultStyles.fullHeight}>
             <FlatList
-              data={this.state.products}
+              data={this.state.shopList.products}
               extraData={this.state.refresh}
               renderItem={this.renderItem}
               keyExtractor={item => item.id}
@@ -238,7 +208,7 @@ export default class NewListScreen extends AbstractRequestScreen {
               <View style={[ defaultStyles.fill ]}>
                 <Text style={defaultStyles.center}>Valor Total</Text>
                 <Text style={[ defaultStyles.listItemTitle, defaultStyles.center ]}>
-                  {formatCurrency(this.state.totalValue)}
+                  {formatCurrency(this.state.shopList.totalValue)}
                 </Text>
               </View>
             </View>

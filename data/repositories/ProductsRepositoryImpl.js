@@ -3,6 +3,7 @@ import ProductsRepository from '../../domain/repositories/ProductsRepository';
 
 export default class ProductsRepositoryImpl extends ProductsRepository {
   constructor() {
+    super();
     this.dataStore = new ProductsDAO();
   }
 
