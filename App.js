@@ -1,28 +1,31 @@
 import React from 'react';
 import { createStackNavigator, createAppContainer } from 'react-navigation';
 import { MenuProvider } from 'react-native-popup-menu';
-import HomeScreen from './views/HomeScreen';
-import NewProductScreen from './views/NewProductScreen';
-import NewListScreen from './views/NewListScreen';
-import SearchProductScreen from './views/SearchProductScreen';
-import OrderScreen from './views/OrderScreen';
-import NewCategoryScreen from './views/NewCategoryScreen';
-import CategoriesController from './models/CategoriesController';
-import OrdersController from './models/OrdersController';
-import ProductsController from './models/ProductsController';
-import ProductsInOrdersController from './models/ProductsInOrdersController';
-import ProductsInShopListsController from './models/ProductsInShopListsController';
-import ShopListsController from './models/ShopListsController';
-import { colors } from './utils/styles';
+
+import HomeScreen from './presentation/views/HomeScreen';
+/*import NewProductScreen from './presentation/views/NewProductScreen';
+import NewListScreen from './presentation/views/NewListScreen';
+import SearchProductScreen from './presentation/views/SearchProductScreen';
+import OrderScreen from './presentation/views/OrderScreen';
+import NewCategoryScreen from './presentation/views/NewCategoryScreen';*/
+
+import CategoriesDAO from './data/database/CategoriesDAO';
+import OrdersDAO from './data/database/OrdersDAO';
+import ProductsDAO from './data/database/ProductsDAO';
+import ProductsInOrdersDAO from './data/database/ProductsInOrdersDAO';
+import ProductsInShopListsDAO from './data/database/ProductsInShopListsDAO';
+import ShopListsDAO from './data/database/ShopListsDAO';
+
+import { colors } from './presentation/utils/styles';
 
 const AppNavigator = createStackNavigator(
   {
     Home: HomeScreen,
-    NewProduct: NewProductScreen,
+    /*NewProduct: NewProductScreen,
     NewList: NewListScreen,
     NewCategory: NewCategoryScreen,
     SearchProduct: SearchProductScreen,
-    Order: OrderScreen,
+    Order: OrderScreen,*/
   },
   {
     defaultNavigationOptions: {
@@ -49,36 +52,36 @@ export default class App extends React.Component {
   }
 
   createTables = async () => {
-    const categoriesController = new CategoriesController();
-    const ordersController = new OrdersController();
-    const productsController = new ProductsController();
-    const productsInOrdersController = new ProductsInOrdersController();
-    const productsInShopListsController = new ProductsInShopListsController();
-    const shopListsController = new ShopListsController();
+    const categoriesDAO = new CategoriesDAO();
+    const ordersDAO = new OrdersDAO();
+    const productsDAO = new ProductsDAO();
+    const productsInOrdersDAO = new ProductsInOrdersDAO();
+    const productsInShopListsDAO = new ProductsInShopListsDAO();
+    const shopListsDAO = new ShopListsDAO();
 
-    await categoriesController.createTable();
-    await productsController.createTable();
-    await shopListsController.createTable();
-    await ordersController.createTable();
-    await productsInOrdersController.createTable();
-    return productsInShopListsController.createTable();
+    await categoriesDAO.createTable();
+    await productsDAO.createTable();
+    await shopListsDAO.createTable();
+    await ordersDAO.createTable();
+    await productsInOrdersDAO.createTable();
+    return productsInShopListsDAO.createTable();
   }
 
   dropTables = async () => {
-    const categoriesController = new CategoriesController();
-    const ordersController = new OrdersController();
-    const productsController = new ProductsController();
-    const productsInOrdersController = new ProductsInOrdersController();
-    const productsInShopListsController = new ProductsInShopListsController();
-    const shopListsController = new ShopListsController();
+    const categoriesDAO = new CategoriesDAO();
+    const ordersDAO = new OrdersDAO();
+    const productsDAO = new ProductsDAO();
+    const productsInOrdersDAO = new ProductsInOrdersDAO();
+    const productsInShopListsDAO = new ProductsInShopListsDAO();
+    const shopListsDAO = new ShopListsDAO();
 
-    await categoriesController.dropTable();
-    ordersController.dropTable();
-    productsController.dropTable();
-    productsInOrdersController.dropTable();
-    productsInShopListsController.dropTable();
-    productsInShopListsController.dropTable();
-    shopListsController.dropTable();
+    await categoriesDAO.dropTable();
+    ordersDAO.dropTable();
+    productsDAO.dropTable();
+    productsInOrdersDAO.dropTable();
+    productsInShopListsDAO.dropTable();
+    productsInShopListsDAO.dropTable();
+    shopListsDAO.dropTable();
   }
 
   render() {

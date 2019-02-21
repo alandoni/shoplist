@@ -4,9 +4,9 @@ import {
   INTEGER,
   REAL,
 } from './SqlDatabaseHelper';
-import GenericSqlController from './GenericSqlController';
+import GenericSqlDAO from './GenericSqlDAO';
 
-export default class ShopListsController extends GenericSqlController {
+export default class ShopListsDAO extends GenericSqlDAO {
   getFieldDescriptors = () => [
     new FieldDescriptor('name', TEXT),
     new FieldDescriptor('amountProducts', INTEGER),

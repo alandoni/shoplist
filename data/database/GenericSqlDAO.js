@@ -4,7 +4,7 @@ import {
   INTEGER,
 } from './SqlDatabaseHelper';
 
-export default class GenericSqlController {
+export default class GenericSqlDAO {
   getFieldDescriptors = () => []
 
   getForeignKeysDescriptors = () => []

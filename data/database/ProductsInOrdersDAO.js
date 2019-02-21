@@ -5,11 +5,11 @@ import {
   ForeignKeyDescriptor,
   SqlDatabaseHelper,
 } from './SqlDatabaseHelper';
-import GenericSqlController from './GenericSqlController';
-import ProductsController from './ProductsController';
-import OrdersController from './OrdersController';
+import GenericSqlDAO from './GenericSqlDAO';
+import ProductsDAO from './ProductsDAO';
+import OrdersDAO from './OrdersDAO';
 
-export default class ProductsInOrdersController extends GenericSqlController {
+export default class ProductsInOrdersDAO extends GenericSqlDAO {
   getFieldDescriptors = () => [
     new FieldDescriptor('orderId', INTEGER),
     new FieldDescriptor('productId', INTEGER),
@@ -18,8 +18,8 @@ export default class ProductsInOrdersController extends GenericSqlController {
   ]
 
   getForeignKeysDescriptors = () => [
-    new ForeignKeyDescriptor('orderId', new OrdersController().getTableName(), 'id'),
-    new ForeignKeyDescriptor('productId', new ProductsController().getTableName(), 'id'),
+    new ForeignKeyDescriptor('orderId', new OrdersDAO().getTableName(), 'id'),
+    new ForeignKeyDescriptor('productId', new ProductsDAO().getTableName(), 'id'),
   ]
 
   getTableName = () => 'orderProducts'

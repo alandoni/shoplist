@@ -6,10 +6,10 @@ import {
   ForeignKeyDescriptor,
   SqlDatabaseHelper,
 } from './SqlDatabaseHelper';
-import GenericSqlController from './GenericSqlController';
-import ShopListsController from './ShopListsController';
+import GenericSqlDAO from './GenericSqlDAO';
+import ShopListsDAO from './ShopListsDAO';
 
-export default class OrdersController extends GenericSqlController {
+export default class OrdersDAO extends GenericSqlDAO {
   getFieldDescriptors = () => [
     new FieldDescriptor('shoplistId', INTEGER),
     new FieldDescriptor('date', TEXT),
@@ -18,7 +18,7 @@ export default class OrdersController extends GenericSqlController {
   ]
 
   getForeignKeysDescriptors = () => [
-    new ForeignKeyDescriptor('shoplistId', new ShopListsController().getTableName(), 'id'),
+    new ForeignKeyDescriptor('shoplistId', new ShopListsDAO().getTableName(), 'id'),
   ]
 
   getTableName = () => 'orders'

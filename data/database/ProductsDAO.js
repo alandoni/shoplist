@@ -6,10 +6,10 @@ import {
   REAL,
   ForeignKeyDescriptor,
 } from './SqlDatabaseHelper';
-import GenericSqlController from './GenericSqlController';
-import CategoriesController from './CategoriesController';
+import GenericSqlDAO from './GenericSqlDAO';
+import CategoriesDAO from './CategoriesDAO';
 
-export default class ProductsController extends GenericSqlController {
+export default class ProductsDAO extends GenericSqlDAO {
   getFieldDescriptors = () => [
     new FieldDescriptor('name', TEXT),
     new FieldDescriptor('notes', TEXT, true),
@@ -18,7 +18,7 @@ export default class ProductsController extends GenericSqlController {
   ]
 
   getForeignKeysDescriptors = () => [
-    new ForeignKeyDescriptor('category', new CategoriesController().getTableName(), 'id'),
+    new ForeignKeyDescriptor('category', new CategoriesDAO().getTableName(), 'id'),
   ]
 
   getTableName = () => 'products'

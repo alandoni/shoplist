@@ -19,12 +19,11 @@ import {
   MenuButton,
   NavigationButton,
 } from '../utils/custom-views-helper';
-import AbstractRequestScreen from './AbstractRequestScreen';
 import { defaultStyles } from '../utils/styles';
-import HomeScreenPresenter from '../controllers/HomeScreenPresenter';
+import HomeScreenPresenter from '../presenters/HomeScreenPresenter';
 import { formatCurrency } from '../utils/utils';
 
-export default class HomeScreen extends AbstractRequestScreen {
+export default class HomeScreen extends React.Component {
   static navigationOptions = ({ navigation }) => {
     const { params = {} } = navigation.state;
     return {
@@ -35,16 +34,29 @@ export default class HomeScreen extends AbstractRequestScreen {
     };
   };
 
-  componentDidMount() {
-    this.presenter = new HomeScreenPresenter();
-    this.props.navigation.setParams({ createNewShopList: this.createNewShopList });
-    super.componentDidMount();
+  constructor(props) {
+    super(props);
+
+    this.state = { isLoading: true };
   }
 
-  requestData = () => this.presenter.getAllShopLists();
+  update(newState) {
+    this.setState(newState);
+  }
+
+  componentDidMount() {
+    this.presenter = new HomeScreenPresenter(this);
+    this.props.navigation.setParams({ createNewShopList: this.createNewShopList });
+    this.requestData();
+  }
+
+  requestData = () => {
+    this.presenter.getAllShopLists();
+  }
 
   createNewShopList = () => {
-    this.props.navigation.navigate('NewList', { onBack: () => this.request() });
+    const { navigate } = this.props.navigation;
+    navigate('NewList', { onBack: () => this.request() });
   }
 
   startOrder = (item) => {
@@ -76,10 +88,7 @@ export default class HomeScreen extends AbstractRequestScreen {
   }
 
   deleteShopList = (item) => {
-    this.setState({ isLoading: true }, () => this.presenter.deleteShopList(item).then((newList) => {
-      const { refresh } = this.state.refresh;
-      this.setState({ isLoading: false, data: newList, refresh: !refresh });
-    }));
+    this.presenter.deleteShopList(item);
   }
 
   renderItem = ({ item }) => (

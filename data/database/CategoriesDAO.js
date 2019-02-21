@@ -2,9 +2,9 @@ import {
   FieldDescriptor,
   TEXT,
 } from './SqlDatabaseHelper';
-import GenericSqlController from './GenericSqlController';
+import GenericSqlDAO from './GenericSqlDAO';
 
-export default class CategoriesController extends GenericSqlController {
+export default class CategoriesDAO extends GenericSqlDAO {
   getFieldDescriptors = () => [
     new FieldDescriptor('name', TEXT),
   ]
