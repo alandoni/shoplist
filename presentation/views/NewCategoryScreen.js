@@ -23,6 +23,9 @@ export default class NewCategoryScreen extends React.Component {
     super(props);
     this.state = {
       isLoading: false,
+      category: {
+        name: '',
+      }
     };
   }
 

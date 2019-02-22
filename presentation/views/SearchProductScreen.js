@@ -22,6 +22,13 @@ export default class SearchProductScreen extends React.Component {
     ),
   });
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      isLoading: true,
+    }
+  }
+
   componentDidMount() {
     this.presenter = new SearchProductPresenter(this);
     this.requestData();

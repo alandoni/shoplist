@@ -6,10 +6,12 @@ export default class NewCategoryPresenter extends StateObservable {
   constructor(observer, id) {
     super();
     this.addObserver(observer);
-    this.state.category = {
-      id,
-      name: '',
-      isLoading: false,
+    this.state = {
+      category: {
+        id,
+        name: '',
+        isLoading: false,
+      }
     };
   }
 

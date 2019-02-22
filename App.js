@@ -4,11 +4,10 @@ import { MenuProvider } from 'react-native-popup-menu';
 
 import HomeScreen from './presentation/views/HomeScreen';
 import NewListScreen from './presentation/views/NewListScreen';
-
-/* import NewProductScreen from './presentation/views/NewProductScreen';
+import NewProductScreen from './presentation/views/NewProductScreen';
 import SearchProductScreen from './presentation/views/SearchProductScreen';
 import OrderScreen from './presentation/views/OrderScreen';
-import NewCategoryScreen from './presentation/views/NewCategoryScreen'; */
+import NewCategoryScreen from './presentation/views/NewCategoryScreen';
 
 import CategoriesDAO from './data/database/CategoriesDAO';
 import OrdersDAO from './data/database/OrdersDAO';
@@ -23,10 +22,10 @@ const AppNavigator = createStackNavigator(
   {
     Home: HomeScreen,
     NewList: NewListScreen,
-    /* NewProduct: NewProductScreen,
+    NewProduct: NewProductScreen,
     NewCategory: NewCategoryScreen,
     SearchProduct: SearchProductScreen,
-    Order: OrderScreen, */
+    Order: OrderScreen,
   },
   {
     defaultNavigationOptions: {

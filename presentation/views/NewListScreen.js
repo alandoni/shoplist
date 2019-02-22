@@ -160,7 +160,7 @@ export default class NewListScreen extends React.Component {
       return <ErrorView error={this.state.error} />;
     }
     return (
-      <View>
+      <View style={defaultStyles.fullHeight}>
         {this.state.selectedProduct
           ? (
             <EditProductInListModal

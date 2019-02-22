@@ -114,13 +114,15 @@ export default class NewProductScreen extends React.Component {
         </View>
 
         <View style={[ defaultStyles.column, defaultStyles.marginTop ]}>
-          <Picker
-            style={[ defaultStyles.fill, defaultStyles.test ]}
-            selectedValue={this.state.product.category}
-            onValueChange={this.setCategory}
-          >
-            {this.state.categories.map(this.renderCategory)}
-          </Picker>
+          {this.state.categories ?
+            <Picker
+              style={[ defaultStyles.fill, defaultStyles.test ]}
+              selectedValue={this.state.product.category}
+              onValueChange={this.setCategory}
+            >
+              {this.state.categories.map(this.renderCategory)}
+            </Picker>
+          : null}
           <TouchableOpacity
             onPress={this.newCategory}
           >

@@ -1,5 +1,5 @@
 import StateObservable from '../StateObservable';
-import GetAllCategoriessUseCase from '../../domain/use-cases/GetAllCategoriesUseCase';
+import GetAllCategoriesUseCase from '../../domain/use-cases/GetAllCategoriesUseCase';
 import GetProductByIdUseCase from '../../domain/use-cases/GetProductByIdUseCase';
 import ProductsRepositoryImpl from '../../data/repositories/ProductsRepositoryImpl';
 import CategoriesRepositoryImpl from '../../data/repositories/CategoriesRepositoryImpl';
@@ -21,9 +21,11 @@ export default class NewProductPresenter extends StateObservable {
   }
 
   async getAllCategories() {
-    this.state.categories = await new GetAllCategoriessUseCase(new CategoriesRepositoryImpl()).getAllCategories();
-    this.state.category = this.state.categories[0];
-    return this.state.categories;
+    this.state.categories = await new GetAllCategoriesUseCase(new CategoriesRepositoryImpl()).execute();
+    
+    if (this.state.categories) {
+      this.state.category = this.state.categories[0];
+    }
   }
 
   async requestProduct() {
