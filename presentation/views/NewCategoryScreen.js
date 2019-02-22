@@ -25,7 +25,7 @@ export default class NewCategoryScreen extends React.Component {
       isLoading: false,
       category: {
         name: '',
-      }
+      },
     };
   }
 

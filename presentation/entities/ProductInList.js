@@ -1,4 +1,4 @@
-export default class ProductInShopList {
+export default class ProductInList {
   constructor(productId, shopListId, amount, value, id) {
     this.productId = productId;
     this.shopListId = shopListId;

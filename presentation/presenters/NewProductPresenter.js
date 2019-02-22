@@ -11,9 +11,7 @@ export default class NewProductPresenter extends StateObservable {
     super();
     this.addObserver(observer);
     this.state = {
-      product: {
-        id, name: '', value: 0, category: '', notes: '',
-      },
+      product: new Product('', 0, '', null, id),
       categories: [],
       category: null,
       isLoading: true,
@@ -22,7 +20,7 @@ export default class NewProductPresenter extends StateObservable {
 
   async getAllCategories() {
     this.state.categories = await new GetAllCategoriesUseCase(new CategoriesRepositoryImpl()).execute();
-    
+
     if (this.state.categories) {
       this.state.category = this.state.categories[0];
     }

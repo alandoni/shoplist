@@ -1,17 +1,15 @@
 import StateObservable from '../StateObservable';
 import SaveCategoryUseCase from '../../domain/use-cases/SaveCategoryUseCase';
 import CategoriesRepositoryImpl from '../../data/repositories/CategoriesRepositoryImpl';
+import Category from '../../data/entities/Category';
 
 export default class NewCategoryPresenter extends StateObservable {
   constructor(observer, id) {
     super();
     this.addObserver(observer);
     this.state = {
-      category: {
-        id,
-        name: '',
-        isLoading: false,
-      }
+      category: new Category('', id),
+      isLoading: false,
     };
   }
 

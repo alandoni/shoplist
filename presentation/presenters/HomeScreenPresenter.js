@@ -8,14 +8,14 @@ export default class HomeScreenPresenter extends StateObservable {
     super();
     this.addObserver(observer);
     this.state = {
-      isLoading: true, refresh: false, error: null, data: null,
+      isLoading: true, refresh: false, error: null, shopLists: null,
     };
   }
 
   async getAllShopLists() {
     this.state.isLoading = true;
     this.notifyObservers(this.state);
-    this.state.data = await new GetAllShopListsUseCase(new ShopListsRepositoryImpl()).execute();
+    this.state.shopLists = await new GetAllShopListsUseCase(new ShopListsRepositoryImpl()).execute();
     this.state.isLoading = false;
     this.state.refresh = !this.state.refresh;
     this.notifyObservers(this.state);

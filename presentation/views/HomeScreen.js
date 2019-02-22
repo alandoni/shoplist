@@ -125,7 +125,7 @@ export default class HomeScreen extends React.Component {
     return (
       <View style={defaultStyles.fullHeight}>
         <FlatList
-          data={this.state.data}
+          data={this.state.shopLists}
           extraData={this.state.refresh}
           renderItem={this.renderItem}
           keyExtractor={item => item.id}

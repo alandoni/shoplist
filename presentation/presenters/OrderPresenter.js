@@ -9,7 +9,9 @@ import SaveOrderUseCase from '../../domain/use-cases/SaveOrderUseCase';
 import AddProductToOrderUseCase from '../../domain/use-cases/AddProductToOrderUseCase';
 import UpdateProductInOrderUseCase from '../../domain/use-cases/UpdateProductInOrderUseCase';
 import RemoveProductFromOrderUseCase from '../../domain/use-cases/RemoveProductFromOrderUseCase';
-import ProductInOrder from '../../data/entities/ProductInOrder';
+import Order from '../entities/Order';
+import ProductInList from '../entities/ProductInList';
+import UpdateProductInList from '../entities/UpdateProductInList';
 
 export default class OrderPresenter extends StateObservable {
   constructor(observer, id, shopListId, name) {
@@ -17,9 +19,7 @@ export default class OrderPresenter extends StateObservable {
     this.addObserver(observer);
     const date = new Date();
     this.state = {
-      order: {
-        id, shopListId, name, date, products: [], totalValue: 0, amountProducts: 0,
-      },
+      order: new Order(shopListId, name, date, [], 0, 0, id),
       isLoading: true,
       refresh: false,
     };
@@ -65,7 +65,7 @@ export default class OrderPresenter extends StateObservable {
     this.state.isLoading = true;
     this.notifyObservers(this.state);
 
-    const newProduct = new ProductInOrder(product.id, this.state.order.id, 1, product.value);
+    const newProduct = new ProductInList(product.id, this.state.order.id, 1, product.value);
     this.state.order.products.push(newProduct);
     await new AddProductToOrderUseCase(
       new OrdersRepositoryImpl(),
@@ -81,7 +81,7 @@ export default class OrderPresenter extends StateObservable {
     this.state.isLoading = true;
     this.notifyObservers(this.state);
 
-    const newProduct = new ProductInOrder(product.productId, this.state.shopList.id, amount, value, product.id);
+    const newProduct = new UpdateProductInList(product.id, amount, value);
     this.state.order.products.setElement(newProduct, element => element.id === newProduct.id);
 
     await new UpdateProductInOrderUseCase(

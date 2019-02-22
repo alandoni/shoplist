@@ -26,7 +26,7 @@ export default class SearchProductScreen extends React.Component {
     super(props);
     this.state = {
       isLoading: true,
-    }
+    };
   }
 
   componentDidMount() {

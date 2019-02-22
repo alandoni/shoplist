@@ -6,16 +6,16 @@ import AddProductToShopListUseCase from '../../domain/use-cases/AddProductToShop
 import GetShopListByIdUseCase from '../../domain/use-cases/GetShopListByIdUseCase';
 import RemoveProductFromShopListUseCase from '../../domain/use-cases/RemoveProductFromShopListUseCase';
 import UpdateProductInShopListUseCase from '../../domain/use-cases/UpdateProductInShopListUseCase';
-import ProductInShopList from '../../data/entities/ProductInShopList';
+import UpdateProductInList from '../entities/UpdateProductInList';
+import ShopList from '../entities/ShopList';
+import ProductInList from '../entities/ProductInList';
 
 export default class NewListPresenter extends StateObservable {
   constructor(observer, name, id) {
     super();
     this.addObserver(observer);
     this.state = {
-      shopList: {
-        name, id, products: [], amountProducts: 0, totalValue: 0,
-      },
+      shopList: new ShopList(name, [], 0, 0, id),
       isLoading: true,
       error: null,
       refresh: false,
@@ -51,7 +51,7 @@ export default class NewListPresenter extends StateObservable {
     this.state.isLoading = true;
     this.notifyObservers(this.state);
 
-    const newProduct = new ProductInShopList(product.id, this.state.shopList.id, 1, product.value);
+    const newProduct = new ProductInList(product.id, this.state.shopList.id, 1, product.value);
     this.state.shopList.products.push(newProduct);
     await new AddProductToShopListUseCase(
       new ShopListsRepositoryImpl(),
@@ -67,7 +67,7 @@ export default class NewListPresenter extends StateObservable {
     this.state.isLoading = true;
     this.notifyObservers(this.state);
 
-    const newProduct = new ProductInShopList(product.productId, this.state.shopList.id, amount, value, product.id);
+    const newProduct = new UpdateProductInList(product.id, amount, value);
     this.state.shopList.products.setElement(newProduct, element => element.id === newProduct.id);
 
     await new UpdateProductInShopListUseCase(
