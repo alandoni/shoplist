@@ -40,10 +40,6 @@ export default class HomeScreen extends React.Component {
     this.state = { isLoading: true };
   }
 
-  update(newState) {
-    this.setState(newState);
-  }
-
   componentDidMount() {
     this.presenter = new HomeScreenPresenter(this);
     this.props.navigation.setParams({ createNewShopList: this.createNewShopList });
@@ -89,6 +85,10 @@ export default class HomeScreen extends React.Component {
 
   deleteShopList = (item) => {
     this.presenter.deleteShopList(item);
+  }
+
+  update(newState) {
+    this.setState(newState);
   }
 
   renderItem = ({ item }) => (

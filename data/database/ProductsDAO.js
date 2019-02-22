@@ -44,7 +44,8 @@ export default class ProductsDAO extends GenericSqlDAO {
   }
 
   selectByName(name) {
-    return SqlDatabaseHelper.select(this.getTableName(), this.fieldNames(), `${this.getTableName()}.name LIKE %?%`, [ name ],
+    return SqlDatabaseHelper.select(this.getTableName(), this.fieldNames(),
+      `${this.getTableName()}.name LIKE %?%`, [ name ],
       this.getForeignKeysDescriptors()[0], null, this.getFieldDescriptors()[3].name).then(this.processData);
   }
 }

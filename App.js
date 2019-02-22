@@ -5,10 +5,10 @@ import { MenuProvider } from 'react-native-popup-menu';
 import HomeScreen from './presentation/views/HomeScreen';
 import NewListScreen from './presentation/views/NewListScreen';
 
-/*import NewProductScreen from './presentation/views/NewProductScreen';
+/* import NewProductScreen from './presentation/views/NewProductScreen';
 import SearchProductScreen from './presentation/views/SearchProductScreen';
 import OrderScreen from './presentation/views/OrderScreen';
-import NewCategoryScreen from './presentation/views/NewCategoryScreen';*/
+import NewCategoryScreen from './presentation/views/NewCategoryScreen'; */
 
 import CategoriesDAO from './data/database/CategoriesDAO';
 import OrdersDAO from './data/database/OrdersDAO';
@@ -22,11 +22,11 @@ import { colors } from './presentation/utils/styles';
 const AppNavigator = createStackNavigator(
   {
     Home: HomeScreen,
-    NewList: NewListScreen,    
-    /*NewProduct: NewProductScreen,
+    NewList: NewListScreen,
+    /* NewProduct: NewProductScreen,
     NewCategory: NewCategoryScreen,
     SearchProduct: SearchProductScreen,
-    Order: OrderScreen,*/
+    Order: OrderScreen, */
   },
   {
     defaultNavigationOptions: {
@@ -63,10 +63,10 @@ export default class App extends React.Component {
     await categoriesDAO.createTable();
     await productsDAO.createTable();
     await shopListsDAO.createTable();
-    /*await shopListsDAO.insert({
+    /* await shopListsDAO.insert({
       name:'TEXT',
       amountProducts: 0,
-      totalValue: 0});*/
+      totalValue: 0}); */
     await ordersDAO.createTable();
     await productsInOrdersDAO.createTable();
     return productsInShopListsDAO.createTable();

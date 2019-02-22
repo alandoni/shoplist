@@ -19,7 +19,7 @@ import {
 import EditProductInListModal from './EditProductInListModal';
 import { defaultStyles } from '../utils/styles';
 import NewListPresenter from '../presenters/NewListPresenter';
-import { formatCurrency, ValidationError } from '../utils/utils';
+import { formatCurrency } from '../utils/utils';
 
 export default class NewListScreen extends React.Component {
   static navigationOptions = ({ navigation }) => {
@@ -48,19 +48,14 @@ export default class NewListScreen extends React.Component {
     this.requestData();
   }
 
-  update(newState) {
-    this.setState(newState);
-  }
-
   requestData = () => this.presenter.requestShopList();
 
-  saveShopList = (close) => {
-    this.presenter.saveShopList().then(() => {
-      if (close) {
-        this.props.navigation.state.params.onBack(shopList);
-        this.props.navigation.goBack();
-      }
-    });
+  saveShopList = async (close) => {
+    const shopList = await this.presenter.saveShopList();
+    if (close) {
+      this.props.navigation.state.params.onBack(shopList);
+      this.props.navigation.goBack();
+    }
   }
 
   selectProduct = (product) => {
@@ -124,6 +119,10 @@ export default class NewListScreen extends React.Component {
     this.presenter.setName(name);
   }
 
+  update(newState) {
+    this.setState(newState);
+  }
+
   renderItem = ({ item }) => (
     <TouchableHighlight onPress={() => { this.selectProduct(item); }}>
       <View style={defaultStyles.listItem}>
@@ -170,7 +169,7 @@ export default class NewListScreen extends React.Component {
               onRequestClose={product => this.updateProduct(product)}
             />
           )
-          : null} 
+          : null}
         <View style={defaultStyles.fullHeight}>
           <TextInput
             placeholder="Descrição"
@@ -178,7 +177,7 @@ export default class NewListScreen extends React.Component {
             value={this.state.shopList.name}
             style={[ defaultStyles.textInput, defaultStyles.verticalMargin ]}
           />
-          
+
           { this.state.validationError
             ? <Text style={defaultStyles.error}>{this.state.validationError.message}</Text>
             : null }
@@ -189,6 +188,7 @@ export default class NewListScreen extends React.Component {
               </Text>
             )
             : null}
+
           <View style={defaultStyles.fullHeight}>
             <FlatList
               data={this.state.shopList.products}
@@ -199,6 +199,7 @@ export default class NewListScreen extends React.Component {
             />
             <FloatingActionButton onPress={this.newProduct} />
           </View>
+
           <View style={defaultStyles.footer}>
             <View style={defaultStyles.fullWidth}>
               <View style={[ defaultStyles.fill ]}>

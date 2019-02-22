@@ -1,23 +1,28 @@
-import DataManager from './DataManager';
+import StateObservable from '../StateObservable';
+import SaveCategoryUseCase from '../../domain/use-cases/SaveCategoryUseCase';
+import CategoriesRepositoryImpl from '../../data/repositories/CategoriesRepositoryImpl';
 
-export default class NewCategoryPresenter {
-  constructor(id) {
-    this.category = {
+export default class NewCategoryPresenter extends StateObservable {
+  constructor(observer, id) {
+    super();
+    this.addObserver(observer);
+    this.state.category = {
       id,
       name: '',
+      isLoading: false,
     };
   }
 
   async saveCategory() {
-    if (this.category.id) {
-      this.category = await DataManager.updateCategory(this.category.id, this.category.name);
-    } else {
-      this.category = await DataManager.saveCategory(this.category.name);
-    }
-    return this.category;
+    this.state.isLoading = true;
+    this.notifyObservers(this.state);
+    this.state.category = await new SaveCategoryUseCase(new CategoriesRepositoryImpl()).execute(this.state.category);
+    this.state.isLoading = false;
+    this.notifyObservers(this.state);
   }
 
   setName(name) {
-    this.category.name = name;
+    this.state.category.name = name;
+    this.notifyObservers(this.state);
   }
 }

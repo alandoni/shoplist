@@ -1,4 +1,4 @@
-import CategoriesDAO from "../database/CategoriesDAO";
+import CategoriesDAO from '../database/CategoriesDAO';
 import CategoriesRepository from '../../domain/repositories/CategoriesRepository';
 
 export default class CategoriesRepositoryImpl extends CategoriesRepository {
@@ -8,26 +8,26 @@ export default class CategoriesRepositoryImpl extends CategoriesRepository {
   }
 
   async getAll() {
-    return await this.dataStore.selectAll();
+    return this.dataStore.selectAll();
   }
 
   async getById(id) {
-    return (await this.dataStore.selectById(id))[0];
+    return this.dataStore.selectById(id)[0];
   }
 
   async searchByName(name) {
-    return await this.dataStore.searchByName(name);
+    return this.dataStore.searchByName(name);
   }
 
   async save(category) {
-    return (await this.dataStore.insert(category))[0];
+    return this.dataStore.insert(category)[0];
   }
 
   async update(id, category) {
-    return (await this.dataStore.updateById(id, category))[0];
+    return this.dataStore.updateById(id, category)[0];
   }
 
   async remove(id) {
-    return await this.dataStore.deleteById(id);
+    return this.dataStore.deleteById(id);
   }
 }

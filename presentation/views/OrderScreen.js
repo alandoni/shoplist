@@ -20,12 +20,11 @@ import {
   ErrorView,
   NavigationButton,
 } from '../utils/custom-views-helper';
-import AbstractRequestScreen from './AbstractRequestScreen';
 import { defaultStyles } from '../utils/styles';
 import EditProductInListModal from './EditProductInListModal';
-import OrderPresenter from '../controllers/OrderPresenter';
+import OrderPresenter from '../presenters/OrderPresenter';
 
-export default class OrderScreen extends AbstractRequestScreen {
+export default class OrderScreen extends React.Component {
   static navigationOptions = ({ navigation }) => ({
     title: 'Comprando',
     headerRight: (
@@ -40,42 +39,17 @@ export default class OrderScreen extends AbstractRequestScreen {
     const id = this.props.navigation.getParam('id', null);
     const shopListId = this.props.navigation.getParam('shopListId', null);
 
-    this.presenter = new OrderPresenter(id, shopListId, name);
-
-    this.setState(this.presenter.order, () => {
-      super.componentDidMount();
-    });
+    this.presenter = new OrderPresenter(this, id, shopListId, name);
   }
 
   requestData = () => this.presenter.getOrder();
 
-  onDataRequested(data, error) {
-    const { refresh } = this.state;
-    if (data) {
-      this.setState({
-        ...data,
-        error,
-        isLoading: false,
-        refresh: !refresh,
-      });
-    } else {
-      super.onDataRequested(data, error);
+  saveOrder = async (close) => {
+    const order = await this.presenter.saveOrder();
+    if (close) {
+      this.props.navigation.state.params.onBack(order);
+      this.props.navigation.goBack();
     }
-  }
-
-  saveOrder = (close) => {
-    this.setState({ isLoading: true }, () => {
-      this.presenter.saveOrder().then((order) => {
-        if (close) {
-          this.props.navigation.state.params.onBack(order);
-          this.props.navigation.goBack();
-        } else {
-          this.setState({ ...order, isLoading: false });
-        }
-      }).catch((error) => {
-        this.setState({ error, isLoading: false });
-      });
-    });
   }
 
   selectProduct = (product) => {
@@ -91,12 +65,7 @@ export default class OrderScreen extends AbstractRequestScreen {
   }
 
   addProductToTheList = (product) => {
-    this.setState({ isLoading: true }, () => {
-      this.presenter.addProductToTheList(product).then((order) => {
-        const { refresh } = this.state;
-        this.setState({ ...order, refresh: !refresh, isLoading: false });
-      });
-    });
+    this.presenter.addProductToTheList(product);
   }
 
   editAmountAndPrice = (item) => {
@@ -105,12 +74,7 @@ export default class OrderScreen extends AbstractRequestScreen {
 
   updateProduct = (product) => {
     const { selectProduct } = this.state;
-    this.setState({ isLoading: true }, () => {
-      this.presenter.updateProductInTheList(selectProduct, product.amount, product.value).then((order) => {
-        const { refresh } = this.state;
-        this.setState({ ...order, refresh: !refresh, isLoading: false });
-      });
-    });
+    this.presenter.updateProductInTheList(selectProduct, product.amount, product.value);
   }
 
   editProduct = (item) => {
@@ -142,10 +106,11 @@ export default class OrderScreen extends AbstractRequestScreen {
   }
 
   deleteProductFromOrder = (item) => {
-    this.setState({ isLoading: true }, () => this.presenter.deleteProductFromList(item.id).then((order) => {
-      const { refresh } = this.state;
-      this.setState({ ...order, refresh: !refresh, isLoading: false });
-    }));
+    this.presenter.deleteProductFromList(item.id);
+  }
+
+  update(newState) {
+    this.setState(newState);
   }
 
   renderItem = ({ item }) => (
@@ -201,20 +166,20 @@ export default class OrderScreen extends AbstractRequestScreen {
           )
           : null}
         <Text style={[ defaultStyles.listItemTitle, defaultStyles.verticalMargin, defaultStyles.horizontalMargin ]}>
-          {this.state.name}
+          {this.state.order.shopList.name}
         </Text>
-        {this.state.id
+        {this.state.order.id
           ? (
             <Text style={[ defaultStyles.lessRelevant, defaultStyles.marginBottom, defaultStyles.marginLeft ]}>
               ID:
               {' '}
-              {this.state.id}
+              {this.state.order.id}
             </Text>
           )
           : null}
         <View style={defaultStyles.fullHeight}>
           <FlatList
-            data={this.state.data}
+            data={this.state.order.products}
             extraData={this.state.refresh}
             renderItem={this.renderItem}
             keyExtractor={item => item.id}
@@ -226,11 +191,13 @@ export default class OrderScreen extends AbstractRequestScreen {
           <View style={defaultStyles.fullWidth}>
             <View style={[ defaultStyles.fill ]}>
               <Text style={defaultStyles.center}>Total de Produtos</Text>
-              <Text style={[ defaultStyles.listItemTitle, defaultStyles.center ]}>{this.state.amountProducts}</Text>
+              <Text style={[ defaultStyles.listItemTitle, defaultStyles.center ]}>
+                {this.state.order.amountProducts}
+              </Text>
             </View>
             <View style={[ defaultStyles.fill ]}>
               <Text style={defaultStyles.center}>Valor Total</Text>
-              <Text style={[ defaultStyles.listItemTitle, defaultStyles.center ]}>{this.state.totalValue}</Text>
+              <Text style={[ defaultStyles.listItemTitle, defaultStyles.center ]}>{this.state.order.totalValue}</Text>
             </View>
           </View>
         </View>

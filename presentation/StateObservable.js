@@ -13,7 +13,7 @@ export default class StateObservable {
   }
 
   notifyObservers() {
-    this.observers.forEach(observer => {
+    this.observers.forEach((observer) => {
       observer.update(this.state);
     });
   }

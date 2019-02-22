@@ -7,6 +7,6 @@ export default class RemoveShopListUseCase extends UseCase {
   }
 
   async run(id) {
-    return await this.shopListsRepository.remove(id);
+    return this.shopListsRepository.remove(id);
   }
 }

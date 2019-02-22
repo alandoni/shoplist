@@ -1,3 +1,9 @@
 export default class ShopList {
-  id; name; totalValue; amountProducts;
+  id;
+
+ name;
+
+ totalValue;
+
+ amountProducts;
 }

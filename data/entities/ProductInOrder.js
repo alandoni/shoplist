@@ -1,7 +1,7 @@
-export default class ProductInShopList {
-  constructor(productId, shopListId, amount, value, id) {
+export default class ProductInOrder {
+  constructor(productId, orderId, amount, value, id) {
     this.productId = productId;
-    this.shopListId = shopListId;
+    this.orderId = orderId;
     this.amount = amount;
     this.value = value;
     this.totalValue = this.amount * this.value;

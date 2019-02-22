@@ -1,5 +1,5 @@
 import UseCase from './UseCase';
-import SaveShopListUseCase from './SaveShopListUseCase';
+import UpdateTotalsForShopListUseCase from './UpdateTotalsForShopListUseCase';
 
 export default class AddProductToShopListUseCase extends UseCase {
   constructor(shopListsRepository, productsInShopListsRepository) {

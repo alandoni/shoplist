@@ -1,19 +1,19 @@
 export default class CategoriesRepository {
-  async getAll() {
+  getAll = async () => {
   }
 
-  async getById(id) {
+  getById = async () => {
   }
 
-  async searchByName(name) {
+  searchByName = async () => {
   }
 
-  async save(category) {
+  save = async () => {
   }
 
-  async update(id, category) {
+  update = async () => {
   }
 
-  async remove(id) {
+  remove = async () => {
   }
 }

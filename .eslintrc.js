@@ -40,5 +40,6 @@ module.exports = {
         'global-require': 'off',
         "no-underscore-dangle": "off",
         "no-extend-native": "off",
+        "prefer-destructuring": "warn",
     }
 };

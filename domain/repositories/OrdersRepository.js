@@ -1,19 +1,19 @@
 export default class OrdersRepository {
-  async getAll() {
+  getAll = async () => {
   }
 
-  async getById(id) {
+  getById = async () => {
   }
 
-  async searchByName(name) {
+  searchByName = async () => {
   }
 
-  async save(order) {
+  save = async () => {
   }
 
-  async update(id, order) {
+  update = async () => {
   }
 
-  async remove(id) {
+  remove = async () => {
   }
 }

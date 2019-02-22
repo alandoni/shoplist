@@ -1,19 +1,19 @@
 export default class ProductsRepository {
-  async getAll() {
+  getAll = async () => {
   }
 
-  async getById(id) {
+  getById = async () => {
   }
 
-  async searchByName(name) {
+  searchByName = async () => {
   }
 
-  async save(product) {
+  save = async () => {
   }
 
-  async update(id, product) {
+  update = async () => {
   }
 
-  async remove(id) {
+  remove = async () => {
   }
 }

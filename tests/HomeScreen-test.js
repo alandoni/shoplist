@@ -1,6 +1,6 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import HomeScreen from '../screens/HomeScreen';
+import HomeScreen from '../presentation/views/HomeScreen';
 
 const navigation = {
   navigate: jest.fn(),

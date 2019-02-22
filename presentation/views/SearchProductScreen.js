@@ -11,11 +11,10 @@ import {
   FloatingActionButton, NavigationButton, ProgressView, ErrorView,
 } from '../utils/custom-views-helper';
 import { defaultStyles } from '../utils/styles';
-import AbstractRequestScreen from './AbstractRequestScreen';
-import SearchProductPresenter from '../controllers/SearchProductPresenter';
+import SearchProductPresenter from '../presenters/SearchProductPresenter';
 import { formatCurrency } from '../utils/utils';
 
-export default class SearchProductScreen extends AbstractRequestScreen {
+export default class SearchProductScreen extends React.Component {
   static navigationOptions = ({ navigation }) => ({
     title: 'Procurar Produto',
     headerRight: (
@@ -24,8 +23,8 @@ export default class SearchProductScreen extends AbstractRequestScreen {
   });
 
   componentDidMount() {
-    this.presenter = new SearchProductPresenter();
-    super.componentDidMount();
+    this.presenter = new SearchProductPresenter(this);
+    this.requestData();
   }
 
   requestData = () => this.presenter.getProducts();
@@ -41,9 +40,7 @@ export default class SearchProductScreen extends AbstractRequestScreen {
 
   searchProduct = (text) => {
     this.presenter.search(text);
-    this.setState({ text }, () => {
-      this.request();
-    });
+    this.requestData();
   }
 
   selectItem = (item) => {
@@ -71,10 +68,11 @@ export default class SearchProductScreen extends AbstractRequestScreen {
   }
 
   deleteProduct = (item) => {
-    const { refresh } = this.state;
-    this.setState({ isLoading: true }, () => this.presenter.deleteProduct(item).then((newList) => {
-      this.setState({ ...newList, isLoading: false, refresh: !refresh });
-    }));
+    this.presenter.deleteProduct(item);
+  }
+
+  update(newState) {
+    this.setState(newState);
   }
 
   renderItem = ({ item }) => (
@@ -104,7 +102,7 @@ export default class SearchProductScreen extends AbstractRequestScreen {
           style={[ defaultStyles.textInput, defaultStyles.verticalMargin ]}
         />
         <FlatList
-          data={this.state.data}
+          data={this.state.products}
           extraData={this.state.refresh}
           renderItem={this.renderItem}
           keyExtractor={item => item.id}

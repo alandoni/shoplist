@@ -1,19 +1,19 @@
 export default class ShopListsRepository {
-  async getAll() {
+  getAll = async () => {
   }
 
-  async getById(id) {
+  getById = async () => {
   }
 
-  async searchByName(name) {
+  searchByName = async () => {
   }
 
-  async save(shopList) {
+  save = async () => {
   }
 
-  async update(id, shopList) {
+  update = async () => {
   }
 
-  async remove(id) {
+  remove = async () => {
   }
 }

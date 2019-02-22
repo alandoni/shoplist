@@ -27,7 +27,6 @@ export default class EditProductInListModal extends React.Component {
 
   closeModal() {
     if (this.props.onRequestClose) {
-      console.log(this.state);
       this.props.onRequestClose(this.state);
     }
   }
@@ -38,11 +37,11 @@ export default class EditProductInListModal extends React.Component {
         transparent={false}
         visible={this.props.visible}
         onRequestClose={this.props.onRequestClose}
-        avoidKeyboard={true}
+        avoidKeyboard
         style={defaultStyles.modal}
       >
         <View style={defaultStyles.fill}>
-          <Text style={[defaultStyles.marginLeft, defaultStyles.listItemTitle]}>{this.props.product.name}</Text>
+          <Text style={[ defaultStyles.marginLeft, defaultStyles.listItemTitle ]}>{this.props.product.name}</Text>
           <TextInput
             placeholder="Quantidade"
             onChangeText={(text) => { this.setState({ amount: text }); }}

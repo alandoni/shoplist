@@ -55,7 +55,7 @@ const defaultStyles = StyleSheet.create({
     paddingVertical: 3,
     paddingHorizontal: 10,
     textAlign: 'center',
-    marginHorizontal: 10
+    marginHorizontal: 10,
   },
   navigationButton: {
     backgroundColor: colors.red,
@@ -123,7 +123,7 @@ const defaultStyles = StyleSheet.create({
     margin: 0, // This is the important style you need to set
     alignItems: undefined,
     justifyContent: undefined,
-  }
+  },
 });
 
 export { defaultStyles, colors };

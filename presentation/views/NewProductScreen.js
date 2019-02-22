@@ -6,13 +6,12 @@ import {
   TouchableOpacity,
   Picker,
 } from 'react-native';
-import AbstractRequestScreen from './AbstractRequestScreen';
 import { defaultStyles } from '../utils/styles';
 import { NavigationButton, ProgressView, ErrorView } from '../utils/custom-views-helper';
-import NewProductPresenter from '../controllers/NewProductPresenter';
+import NewProductPresenter from '../presenters/NewProductPresenter';
 import { formatCurrency, parseCurrency } from '../utils/utils';
 
-export default class NewProductScreen extends AbstractRequestScreen {
+export default class NewProductScreen extends React.Component {
   static navigationOptions = ({ navigation }) => {
     const { params = {} } = navigation.state;
     return {
@@ -23,32 +22,26 @@ export default class NewProductScreen extends AbstractRequestScreen {
     };
   };
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      isLoading: true,
+    };
+  }
+
   componentDidMount() {
     this.props.navigation.setParams({ saveProduct: this.saveProduct });
     const id = this.props.navigation.getParam('id', null);
-    this.setState({ id });
-    this.presenter = new NewProductPresenter(id);
-    super.componentDidMount();
+    this.presenter = new NewProductPresenter(this, id);
+    this.requestData();
   }
 
   requestData = () => this.presenter.getCategoriesAndProductIfNeeded();
 
-  onDataRequested(data, error) {
-    const { refresh } = this.state;
-    if (data) {
-      this.setState({ ...data, isLoading: false, refresh: !refresh });
-    } else {
-      super.onDataRequested(data, error);
-    }
-  }
-
-  saveProduct = () => {
-    this.setState({ isLoading: true }, () => this.presenter.saveProduct().then((product) => {
-      this.props.navigation.state.params.onBack(product);
-      this.props.navigation.goBack();
-    }).catch((error) => {
-      this.setState({ error, isLoading: false });
-    }));
+  saveProduct = async () => {
+    const product = await this.presenter.saveProduct();
+    this.props.navigation.state.params.onBack(product);
+    this.props.navigation.goBack();
   }
 
   newCategory = () => {
@@ -57,7 +50,6 @@ export default class NewProductScreen extends AbstractRequestScreen {
 
   addCategory = (category) => {
     this.presenter.addCategory(category);
-    this.setState({ categories: this.presenter.categories, category: this.presenter.category });
   }
 
   renderCategory = category => (
@@ -71,23 +63,23 @@ export default class NewProductScreen extends AbstractRequestScreen {
 
   setName = (name) => {
     this.presenter.setName(name);
-    this.setState({ name });
   }
 
   setValue = (value) => {
     const parsedValue = parseCurrency(value);
     this.presenter.setValue(parsedValue);
-    this.setState({ parsedValue });
   }
 
   setCategory = (category) => {
     this.presenter.setCategory(category);
-    this.setState({ category });
   }
 
   setNotes = (notes) => {
     this.presenter.setNotes(notes);
-    this.setState({ notes });
+  }
+
+  update(newState) {
+    this.setState(newState);
   }
 
   render() {
@@ -103,20 +95,20 @@ export default class NewProductScreen extends AbstractRequestScreen {
           <TextInput
             placeholder="Nome"
             onChangeText={this.setName}
-            value={this.state.name}
+            value={this.state.product.name}
             style={[ defaultStyles.textInput, defaultStyles.marginTop ]}
           />
-          {this.state.id
+          {this.state.product.id
             ? (
               <Text style={[ defaultStyles.lessRelevant, defaultStyles.marginBottom, defaultStyles.marginLeft ]}>
-                ID: {this.state.id}
+                ID: {this.state.product.id}
               </Text>
             )
             : null}
           <TextInput
             placeholder="Valor"
             onChangeText={this.setValue}
-            value={formatCurrency(this.state.value)}
+            value={formatCurrency(this.state.product.value)}
             style={[ defaultStyles.textInput, defaultStyles.marginTop ]}
           />
         </View>
@@ -124,7 +116,7 @@ export default class NewProductScreen extends AbstractRequestScreen {
         <View style={[ defaultStyles.column, defaultStyles.marginTop ]}>
           <Picker
             style={[ defaultStyles.fill, defaultStyles.test ]}
-            selectedValue={this.state.category}
+            selectedValue={this.state.product.category}
             onValueChange={this.setCategory}
           >
             {this.state.categories.map(this.renderCategory)}
@@ -139,7 +131,7 @@ export default class NewProductScreen extends AbstractRequestScreen {
           <TextInput
             placeholder="Observação"
             onChangeText={this.setNotes}
-            value={this.state.notes}
+            value={this.state.product.notes}
             style={[ defaultStyles.textInput, defaultStyles.marginTop ]}
           />
         </View>

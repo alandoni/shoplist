@@ -1,76 +1,84 @@
-import DataManager from './DataManager';
+import StateObservable from '../StateObservable';
+import GetAllCategoriessUseCase from '../../domain/use-cases/GetAllCategoriesUseCase';
+import GetProductByIdUseCase from '../../domain/use-cases/GetProductByIdUseCase';
+import ProductsRepositoryImpl from '../../data/repositories/ProductsRepositoryImpl';
+import CategoriesRepositoryImpl from '../../data/repositories/CategoriesRepositoryImpl';
+import SaveProductUseCase from '../../domain/use-cases/SaveProductUseCase';
+import Product from '../../data/entities/Product';
 
-export default class NewProductPresenter {
-  constructor(id) {
-    this.product = {
-      id, name: '', value: 0, category: '', notes: '',
+export default class NewProductPresenter extends StateObservable {
+  constructor(observer, id) {
+    super();
+    this.addObserver(observer);
+    this.state = {
+      product: {
+        id, name: '', value: 0, category: '', notes: '',
+      },
+      categories: [],
+      category: null,
+      isLoading: true,
     };
-    this.categories = [];
   }
 
   async getAllCategories() {
-    this.categories = await DataManager.getAllCategories();
-    return this.categories;
+    this.state.categories = await new GetAllCategoriessUseCase(new CategoriesRepositoryImpl()).getAllCategories();
+    this.state.category = this.state.categories[0];
+    return this.state.categories;
   }
 
   async requestProduct() {
-    if (!this.product.id) {
-      return this.product;
+    if (this.state.product.id) {
+      this.state.product = await new GetProductByIdUseCase(new ProductsRepositoryImpl()).execute(this.state.product.id);
     }
-    this.product = await DataManager.getProductById(this.product.id);
-    return this.product;
   }
 
   async getCategoriesAndProductIfNeeded() {
+    this.state.isLoading = true;
+    this.notifyObservers(this.state);
     await this.getAllCategories();
     await this.requestProduct();
-
-    return {
-      ...this.product,
-      categories: this.categories,
-      category: this.categories[0],
-    };
+    this.state.isLoading = false;
+    this.notifyObservers(this.state);
   }
 
   async saveProduct() {
-    if (this.product.id) {
-      this.product = await DataManager.updateProduct(
-        this.product.id,
-        this.product.name,
-        this.product.value,
-        this.product.notes,
-        this.product.category.id,
-      );
-    } else {
-      this.product = await DataManager.saveProduct(
-        this.product.name,
-        this.product.value,
-        this.product.notes,
-        this.product.category.id,
-      );
-    }
-    return this.product;
+    this.state.isLoading = true;
+    this.notifyObservers(this.state);
+    this.state.product = await new SaveProductUseCase(new ProductsRepositoryImpl()).execute(new Product(
+      this.state.product.name,
+      this.state.product.value,
+      this.state.product.notes,
+      this.state.product.category.id,
+      this.state.product.id,
+    ));
+    this.state.isLoading = false;
+    this.notifyObservers(this.state);
   }
 
   addCategory(category) {
-    this.categories.push(category);
-    this.product.category = category;
-    this.category = category;
+    this.state.categories.push(category);
+    this.state.product.category = category;
+    this.state.category = category;
+    this.notifyObservers(this.state);
   }
 
   setName(name) {
     this.product.name = name;
+    this.notifyObservers(this.state);
   }
 
   setValue(value) {
     this.product.value = value;
+    this.notifyObservers(this.state);
   }
 
   setCategory(category) {
     this.product.category = category;
+    this.notifyObservers(this.state);
   }
 
   setNotes(notes) {
     this.product.notes = notes;
+    this.notifyObservers(this.state);
   }
 }

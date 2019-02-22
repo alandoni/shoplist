@@ -1,4 +1,4 @@
-export default class ProductsInShopListsRepository {
+export default class ProductsInOrdersRepository {
   getById = async () => {
   }
 
@@ -14,12 +14,12 @@ export default class ProductsInShopListsRepository {
   remove = async () => {
   }
 
-  getByShopListId = async () => {
+  getByOrderId = async () => {
   }
 
-  getByShopListIdAndProductId = async () => {
+  getByOrderIdAndProductId = async () => {
   }
 
-  removeByShopListId = async () => {
+  removeByOrderId = async () => {
   }
 }

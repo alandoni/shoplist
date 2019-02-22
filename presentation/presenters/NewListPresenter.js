@@ -1,10 +1,12 @@
-import { ValidationError } from '../utils/utils';
-import StateObservable from './../StateObservable';
+import StateObservable from '../StateObservable';
 import ShopListsRepositoryImpl from '../../data/repositories/ShopListsRepositoryImpl';
 import SaveShopListUseCase from '../../domain/use-cases/SaveShopListUseCase';
 import ProductsInShopListsRepositoryImpl from '../../data/repositories/ProductsInShopListsRepositoryImpl';
 import AddProductToShopListUseCase from '../../domain/use-cases/AddProductToShopListUseCase';
 import GetShopListByIdUseCase from '../../domain/use-cases/GetShopListByIdUseCase';
+import RemoveProductFromShopListUseCase from '../../domain/use-cases/RemoveProductFromShopListUseCase';
+import UpdateProductInShopListUseCase from '../../domain/use-cases/UpdateProductInShopListUseCase';
+import ProductInShopList from '../../data/entities/ProductInShopList';
 
 export default class NewListPresenter extends StateObservable {
   constructor(observer, name, id) {
@@ -24,8 +26,10 @@ export default class NewListPresenter extends StateObservable {
     if (this.state.shopList.id) {
       this.state.isLoading = true;
       this.notifyObservers(this.state);
-      this.state.shopList = await new GetShopListByIdUseCase(new ShopListsRepositoryImpl()).execute(this.state.shopList.id);
-      console.log(this.state.shopList);
+      this.state.shopList = await new GetShopListByIdUseCase(
+        new ShopListsRepositoryImpl(),
+        new ProductsInShopListsRepositoryImpl(),
+      ).execute(this.state.shopList.id);
     }
     this.state.isLoading = false;
     this.state.refresh = !this.state.refresh;
@@ -37,7 +41,8 @@ export default class NewListPresenter extends StateObservable {
     this.notifyObservers(this.state);
     this.state.shopList = await new SaveShopListUseCase(
       new ShopListsRepositoryImpl(),
-      new ProductsInShopListsRepositoryImpl()).execute(this.state.shopList);
+      new ProductsInShopListsRepositoryImpl(),
+    ).execute(this.state.shopList);
     this.state.isLoading = false;
     this.notifyObservers(this.state);
   }
@@ -46,10 +51,12 @@ export default class NewListPresenter extends StateObservable {
     this.state.isLoading = true;
     this.notifyObservers(this.state);
 
-    this.state.shopList.products.push(product);
+    const newProduct = new ProductInShopList(product.id, this.state.shopList.id, 1, product.value);
+    this.state.shopList.products.push(newProduct);
     await new AddProductToShopListUseCase(
-      new ShopListsRepositoryImpl(), 
-      new ProductsInShopListsRepositoryImpl()).execute(new ProductInShopList(product.id, shopList.id, 1, product.value));
+      new ShopListsRepositoryImpl(),
+      new ProductsInShopListsRepositoryImpl(),
+    ).execute(newProduct);
 
     this.state.isLoading = false;
     this.state.refresh = !this.state.refresh;
@@ -60,13 +67,13 @@ export default class NewListPresenter extends StateObservable {
     this.state.isLoading = true;
     this.notifyObservers(this.state);
 
-    const newProduct = product;
-    newProduct.totalValue = product.amount * product.value;
+    const newProduct = new ProductInShopList(product.productId, this.state.shopList.id, amount, value, product.id);
     this.state.shopList.products.setElement(newProduct, element => element.id === newProduct.id);
 
     await new UpdateProductInShopListUseCase(
-      new ShopListsRepositoryImpl(), 
-      new ProductsInShopListsRepositoryImpl()).execute(product.id, amount, value);
+      new ShopListsRepositoryImpl(),
+      new ProductsInShopListsRepositoryImpl(),
+    ).execute(newProduct);
 
     this.state.isLoading = false;
     this.state.refresh = !this.state.refresh;
@@ -78,8 +85,9 @@ export default class NewListPresenter extends StateObservable {
     this.notifyObservers(this.state);
 
     await new RemoveProductFromShopListUseCase(
-      new ShopListsRepositoryImpl(), 
-      new ProductsInShopListsRepositoryImpl()).execute(product.id);
+      new ShopListsRepositoryImpl(),
+      new ProductsInShopListsRepositoryImpl(),
+    ).execute(product.id);
     this.state.shopList.products = this.state.shopList.products.filter(value => value.id !== product.id);
 
     this.state.isLoading = false;

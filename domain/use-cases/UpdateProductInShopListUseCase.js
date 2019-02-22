@@ -1,6 +1,7 @@
 import UseCase from './UseCase';
+import UpdateTotalsForShopListUseCase from './UpdateTotalsForShopListUseCase';
 
-export default class AddProductToShopListUseCase extends UseCase {
+export default class UpdateProductInShopListUseCase extends UseCase {
   constructor(shopListsRepository, productsInShopListsRepository) {
     super();
     this.shopListsRepository = shopListsRepository;

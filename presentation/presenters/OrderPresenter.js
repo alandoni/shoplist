@@ -1,59 +1,111 @@
-import DataManager from './DataManager';
+import StateObservable from '../StateObservable';
+import ShopListsRepositoryImpl from '../../data/repositories/ShopListsRepositoryImpl';
+import OrdersRepositoryImpl from '../../data/repositories/OrdersRepositoryImpl';
+import GetShopListByIdUseCase from '../../domain/use-cases/GetShopListByIdUseCase';
+import ProductsInShopListsRepositoryImpl from '../../data/repositories/ProductsInShopListsRepositoryImpl';
+import ProductsInOrderRepositoryImpl from '../../data/repositories/ProductsInOrderRepositoryImpl';
+import GetOrderByIdUseCase from '../../domain/use-cases/GetOrderByIdUseCase';
+import SaveOrderUseCase from '../../domain/use-cases/SaveOrderUseCase';
+import AddProductToOrderUseCase from '../../domain/use-cases/AddProductToOrderUseCase';
+import UpdateProductInOrderUseCase from '../../domain/use-cases/UpdateProductInOrderUseCase';
+import RemoveProductFromOrderUseCase from '../../domain/use-cases/RemoveProductFromOrderUseCase';
+import ProductInOrder from '../../data/entities/ProductInOrder';
 
-export default class OrderPresenter {
-  constructor(id, shopListId, name) {
+export default class OrderPresenter extends StateObservable {
+  constructor(observer, id, shopListId, name) {
+    super();
+    this.addObserver(observer);
     const date = new Date();
-    this.order = {
-      id, shopListId, name, date, products: [], totalValue: 0, amountProducts: 0,
+    this.state = {
+      order: {
+        id, shopListId, name, date, products: [], totalValue: 0, amountProducts: 0,
+      },
+      isLoading: true,
+      refresh: false,
     };
   }
 
   async getOrder() {
-    if (this.order.id) {
-      this.order = await DataManager.getOrderById(this.order.id);
+    this.state.isLoading = true;
+    this.notifyObservers(this.state);
+    if (this.state.order.id) {
+      this.state.order = await new GetOrderByIdUseCase(
+        new OrdersRepositoryImpl(),
+        new ProductsInOrderRepositoryImpl(),
+      ).execute(this.state.order.id);
     } else {
-      const shopList = await DataManager.getShopListById(this.order.shopListId);
-      this.order.shopListId = shopList.id;
-      this.order.name = shopList.name;
-      this.order.products = shopList.products;
-      this.order.totalValue = shopList.totalValue;
-      this.order.amountProducts = shopList.amountProducts;
+      const shopList = await new GetShopListByIdUseCase(
+        new ShopListsRepositoryImpl(),
+        new ProductsInShopListsRepositoryImpl(),
+      ).execute(this.state.order.id);
+      this.state.order.shopListId = shopList.id;
+      this.state.order.name = shopList.name;
+      this.state.order.products = shopList.products;
+      this.state.order.totalValue = shopList.totalValue;
+      this.state.order.amountProducts = shopList.amountProducts;
     }
-    return this.order;
+    this.state.isLoading = true;
+    this.state.refresh = !this.state.refresh;
+    this.notifyObservers(this.state);
   }
 
   async saveOrder() {
-    if (this.order.id) {
-      this.order = await DataManager.updateOrder(this.order.id,
-        this.order.shopListId,
-        this.order.date,
-        this.order.products);
-    } else {
-      this.order = await DataManager.saveOrder(this.order.shopListId, this.order.date, this.order.products);
-    }
-    return this.order;
+    this.state.isLoading = true;
+    this.notifyObservers(this.state);
+    this.state.order = await new SaveOrderUseCase(
+      new OrdersRepositoryImpl(),
+      new ProductsInOrderRepositoryImpl(),
+    ).execute(this.state.order);
+    this.state.isLoading = true;
+    this.state.refresh = !this.state.refresh;
+    this.notifyObservers(this.state);
   }
 
   async addProductToTheList(product) {
-    this.order = await this.saveOrder();
-    const newProduct = product;
-    newProduct.amount = 1;
-    newProduct.totalValue = product.amount * product.value;
-    this.order.products.push(newProduct);
-    return this.order;
+    this.state.isLoading = true;
+    this.notifyObservers(this.state);
+
+    const newProduct = new ProductInOrder(product.id, this.state.order.id, 1, product.value);
+    this.state.order.products.push(newProduct);
+    await new AddProductToOrderUseCase(
+      new OrdersRepositoryImpl(),
+      new ProductsInOrderRepositoryImpl(),
+    ).execute(newProduct);
+
+    this.state.isLoading = false;
+    this.state.refresh = !this.state.refresh;
+    this.notifyObservers(this.state);
   }
 
   async updateProductInTheList(product, amount, value) {
-    const storedProduct = await DataManager.updateProductInOrder(product.id, amount, value);
-    const newProduct = storedProduct;
-    newProduct.totalValue = storedProduct.amount * storedProduct.value;
-    this.order.products.setElement(newProduct, element => element.id === newProduct.id);
-    return this.order;
+    this.state.isLoading = true;
+    this.notifyObservers(this.state);
+
+    const newProduct = new ProductInOrder(product.productId, this.state.shopList.id, amount, value, product.id);
+    this.state.order.products.setElement(newProduct, element => element.id === newProduct.id);
+
+    await new UpdateProductInOrderUseCase(
+      new OrdersRepositoryImpl(),
+      new ProductsInOrderRepositoryImpl(),
+    ).execute(newProduct);
+
+    this.state.isLoading = false;
+    this.state.refresh = !this.state.refresh;
+    this.notifyObservers(this.state);
   }
 
   async deleteProductFromList(product) {
-    await DataManager.removeProductFromOrder(product.id);
-    this.order.products = this.order.products.filter(value => value.id !== product.id);
-    return this.order;
+    this.state.isLoading = true;
+    this.notifyObservers(this.state);
+
+    await new RemoveProductFromOrderUseCase(
+      new OrdersRepositoryImpl(),
+      new ProductsInOrderRepositoryImpl(),
+    ).execute(product.id);
+    this.state.order.products = this.state.order.products.filter(value => value.id !== product.id);
+
+    this.state.isLoading = false;
+    this.state.refresh = !this.state.refresh;
+    this.notifyObservers(this.state);
   }
 }

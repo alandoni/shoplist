@@ -7,6 +7,6 @@ export default class GetAllShopListsUseCase extends UseCase {
   }
 
   async run() {
-    return await this.shopListsRepository.getAll();
+    return this.shopListsRepository.getAll();
   }
 }
