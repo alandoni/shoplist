@@ -41,8 +41,8 @@ export default class HomeScreen extends React.Component {
   }
 
   componentDidMount() {
-    this.presenter = new HomeScreenPresenter(this);
     this.props.navigation.setParams({ createNewShopList: this.createNewShopList });
+    this.presenter = new HomeScreenPresenter(this);
     this.requestData();
   }
 
