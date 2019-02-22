@@ -33,4 +33,16 @@ describe('Test', () => {
     expect(spy).toBeCalled();
     spy.mockRestore();
   });
+
+  it('Has FlatList if not loading', () => {
+    wrapper.instance().update({isLoading: false});
+    wrapper.update();
+    expect(wrapper.find(FlatList)).toHaveLength(1);
+  });
+
+  it('Has FlatList if loading', () => {
+    wrapper.instance().update({isLoading: true});
+    wrapper.update();
+    expect(wrapper.find(FlatList)).toHaveLength(0);
+  });
 });
