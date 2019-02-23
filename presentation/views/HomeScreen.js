@@ -52,7 +52,7 @@ export default class HomeScreen extends React.Component {
 
   createNewShopList = () => {
     const { navigate } = this.props.navigation;
-    navigate('NewList', { onBack: () => this.request() });
+    navigate('NewList', { onBack: () => this.requestData() });
   }
 
   startOrder = (item) => {
@@ -62,7 +62,7 @@ export default class HomeScreen extends React.Component {
 
   editList = (item) => {
     const { navigate } = this.props.navigation;
-    navigate('NewList', { name: item.name, id: item.id, onBack: () => this.request() });
+    navigate('NewList', { name: item.name, id: item.id, onBack: () => this.requestData() });
   }
 
   removeShopListWithConfirmation = (item) => {
