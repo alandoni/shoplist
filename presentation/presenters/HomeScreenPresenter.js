@@ -8,26 +8,34 @@ export default class HomeScreenPresenter extends StateObservable {
     super();
     this.addObserver(observer);
     this.state = {
-      isLoading: true, refresh: false, error: null, shopLists: null,
+      isLoading: true, refresh: false, error: null, shopLists: [],
     };
   }
 
   async getAllShopLists() {
     this.state.isLoading = true;
     this.notifyObservers(this.state);
-    this.state.shopLists = await new GetAllShopListsUseCase(new ShopListsRepositoryImpl()).execute();
+    try {
+      this.state.shopLists = await new GetAllShopListsUseCase(new ShopListsRepositoryImpl()).execute();
+      this.state.refresh = !this.state.refresh;      
+    } catch (error) {
+      this.state.error = error.message;
+    }
     this.state.isLoading = false;
-    this.state.refresh = !this.state.refresh;
     this.notifyObservers(this.state);
   }
 
   async deleteShopList(shopList) {
     this.state.isLoading = true;
     this.notifyObservers(this.state);
-    await new RemoveShopListUseCase(new ShopListsRepositoryImpl()).execute(shopList.id);
-    this.state.data = this.state.data.filter(value => value.id !== shopList.id);
+    try {
+      await new RemoveShopListUseCase(new ShopListsRepositoryImpl()).execute(shopList.id);
+      this.state.shopLists = this.state.shopLists.filter(value => value.id !== shopList.id);
+      this.state.refresh = !this.state.refresh;    
+    } catch (error) {
+      this.state.error = error.message;
+    }
     this.state.isLoading = false;
-    this.state.refresh = !this.state.refresh;
     this.notifyObservers(this.state);
   }
 }
