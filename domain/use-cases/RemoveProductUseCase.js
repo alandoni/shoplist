@@ -6,7 +6,7 @@ export default class RemoveProductUseCase extends UseCase {
     this.productsRepository = productsRepository;
   }
 
-  async run(id) {
+  run = async (id) => {
     await this.productsRepository.remove(id);
   }
 }

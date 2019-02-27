@@ -7,7 +7,7 @@ export default class GetOrderByIdUseCase extends UseCase {
     this.productsInOrderRepository = productsInOrderRepository;
   }
 
-  async run(id) {
+  run = async (id) => {
     const order = await this.orderRepository.getById(id);
     const products = await this.productsInOrderRepository.getByOrderId(id);
     order.products = products.map((product) => {

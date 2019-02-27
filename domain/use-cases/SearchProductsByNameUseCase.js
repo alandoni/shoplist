@@ -6,7 +6,7 @@ export default class SearchProductsByNameUseCase extends UseCase {
     this.productsRepository = productsRepository;
   }
 
-  async run(name) {
+  run = async (name) => {
     return this.productsRepository.searchByName(name);
   }
 }

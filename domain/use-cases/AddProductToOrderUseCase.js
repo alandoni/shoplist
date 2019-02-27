@@ -8,12 +8,12 @@ export default class AddProductToOrderUseCase extends UseCase {
     this.productsInOrderRepository = productsInOrderRepository;
   }
 
-  async run(product) {
+  run = async (product) => {
     const productStored = (await this.productsInOrderRepository.save(product))[0];
-    const products = await this.productsInOrderRepository.getByOrderId(product.shopListId);
-    const shopList = await this.orderRepository.getById(product.shopListId);
-    shopList.products = products;
-    new UpdateTotalsForOrderUseCase(this.orderRepository).execute(shopList);
+    const products = await this.productsInOrderRepository.getByOrderId(product.orderId);
+    const order = await this.orderRepository.getById(product.orderId);
+    order.products = products;
+    new UpdateTotalsForOrderUseCase(this.orderRepository).execute(order);
     return productStored;
   }
 }

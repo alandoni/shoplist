@@ -8,7 +8,7 @@ export default class UpdateProductInOrderUseCase extends UseCase {
     this.productsInOrderRepository = productsInOrderRepository;
   }
 
-  async run(product) {
+  run = async (product) => {
     const productStored = (await this.productsInOrderRepository.update(product.id, product))[0];
     const order = await this.ordersRepository.getById(product.orderId);
     const products = await this.productsInOrderRepository.getByOrderId(product.orderId);

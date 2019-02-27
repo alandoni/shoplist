@@ -7,7 +7,7 @@ export default class SaveProductUseCase extends UseCase {
     this.productsRepository = productsRepository;
   }
 
-  async run(product) {
+  run = async (product) => {
     if (product.name.length < 2) {
       throw new ValidationError('Por favor, digite um nome válido!' );
     }

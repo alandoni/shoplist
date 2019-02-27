@@ -7,7 +7,7 @@ export default class GetShopListByIdUseCase extends UseCase {
     this.productsInShopListsRepository = productsInShopListsRepository;
   }
 
-  async run(id) {
+  run = async (id) => {
     const shopList = await this.shopListsRepository.getById(id);
     const products = await this.productsInShopListsRepository.getByShopListId(id);
     shopList.products = products.map((product) => {

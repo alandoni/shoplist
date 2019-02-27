@@ -6,7 +6,7 @@ export default class GetProductByIdUseCase extends UseCase {
     this.productsRepository = productsRepository;
   }
 
-  async run(id) {
+  run = async (id) => {
     return this.productsRepository.getById(id);
   }
 }

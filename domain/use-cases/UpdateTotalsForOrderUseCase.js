@@ -6,7 +6,7 @@ export default class UpdateTotalsForOrderUseCase extends UseCase {
     this.orderRepository = orderRepository;
   }
 
-  async run(order) {
+  run = async (order) => {
     const newOrder = this.getTotals(order);
     const orderStored = await this.orderRepository.update(order.id, newOrder);
     return orderStored;

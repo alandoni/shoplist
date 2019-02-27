@@ -8,7 +8,7 @@ export default class RemoveProductFromOrderUseCase extends UseCase {
     this.productsInOrderRepository = productsInOrderRepository;
   }
 
-  async run(product) {
+  run = async (product) => {
     await this.productsInOrderRepository.remove(product.id);
     const products = await this.productsInOrderRepository.getByOrderId(product.shopListId);
     const shopList = await this.ordersRepository.getById(product.shopListId);

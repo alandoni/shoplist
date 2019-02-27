@@ -6,7 +6,7 @@ export default class GetAllCategoriesUseCase extends UseCase {
     this.categoriesRepository = categoriesRepository;
   }
 
-  async run() {
+  run = async () => {
     return this.categoriesRepository.getAll();
   }
 }

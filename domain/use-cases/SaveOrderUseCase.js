@@ -9,7 +9,7 @@ export default class SaveOrderUseCase extends UseCase {
     this.productsInOrderRepository = productsInOrderRepository;
   }
 
-  async run(order) {
+  run = async (order) => {
     if (order.name.length < 2) {
       throw new ValidationError('Por favor, digite um nome válido!' );
     }

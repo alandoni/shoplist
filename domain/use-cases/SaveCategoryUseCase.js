@@ -7,7 +7,7 @@ export default class SaveCategoryUseCase extends UseCase {
     this.categoryRepository = categoryRepository;
   }
 
-  async run(category) {
+  run = async (category) => {
     if (category.name.length < 2) {
       throw new ValidationError('Por favor, digite um nome válido!' );
     }

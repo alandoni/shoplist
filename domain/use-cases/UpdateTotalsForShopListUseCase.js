@@ -6,7 +6,7 @@ export default class UpdateTotalsForShopListUseCase extends UseCase {
     this.shopListsRepository = shopListsRepository;
   }
 
-  async run(shopList) {
+  run = async (shopList) => {
     const newShopList = this.getTotals(shopList);
     const shopListStored = await this.shopListsRepository.update(newShopList.id, newShopList);
     return shopListStored;

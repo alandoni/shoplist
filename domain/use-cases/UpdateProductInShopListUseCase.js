@@ -8,7 +8,7 @@ export default class UpdateProductInShopListUseCase extends UseCase {
     this.productsInShopListsRepository = productsInShopListsRepository;
   }
 
-  async run(product) {
+  run = async (product) => {
     const productStored = (await this.productsInShopListsRepository.update(product.id, product))[0];
     const shopList = await this.shopListsRepository.getById(product.shopListId);
     const products = await this.productsInShopListsRepository.getByShopListId(product.shopListId);

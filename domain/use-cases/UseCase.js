@@ -1,9 +1,9 @@
 export default class UseCase {
-  run = async () => {
+  run = async (product) => {
     // Override this method
   }
 
-  async execute(data) {
+  execute = async (data) => {
     return this.run(data);
   }
 }

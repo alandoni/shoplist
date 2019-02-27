@@ -9,7 +9,7 @@ export default class SaveShopListUseCase extends UseCase {
     this.productsInShopListsRepository = productsInShopListsRepository;
   }
 
-  async run(shopList) {
+  run = async (shopList) => {
     if (shopList.name.length < 2) {
       throw new ValidationError('Por favor, digite um nome válido!' );
     }
