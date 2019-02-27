@@ -17,8 +17,6 @@ const navigation = {
   },
 };
 
-jest.mock('../presentation/presenters/HomeScreenPresenter');
-
 describe('Test HomeScreen', () => {
   let wrapper;
 

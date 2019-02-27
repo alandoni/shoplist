@@ -2,9 +2,7 @@ import AddProcuctToOrderUseCase from '../domain/use-cases/AddProductToOrderUseCa
 import OrdersRepository from '../domain/repositories/OrdersRepository';
 import ProductsInOrderRepository from '../domain/repositories/ProductsInOrderRepository';
 import UpdateTotalsForOrderUseCase from '../domain/use-cases/UpdateTotalsForOrderUseCase';
-
-const mockProduct = {productId: 3, amount: 1, value: 4, orderId: 1};
-const mockOrder = {products: [], id: 1, shopListId: 1};
+import { mockProduct, mockOrder } from './Mocks';
 
 jest.mock('../domain/repositories/ProductsInOrderRepository', () => {
   return jest.fn().mockImplementation(() => {
@@ -14,7 +12,7 @@ jest.mock('../domain/repositories/ProductsInOrderRepository', () => {
         return mockProduct;
       }),
       getByOrderId: jest.fn(() => {
-        return [mockProduct];
+        return mockProduct;
       }),
     };
   });
