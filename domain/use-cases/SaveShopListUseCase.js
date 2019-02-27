@@ -3,10 +3,11 @@ import UpdateTotalsForShopListUseCase from './UpdateTotalsForShopListUseCase';
 import ValidationError from '../ValidationError';
 
 export default class SaveShopListUseCase extends UseCase {
-  constructor(shopListsRepository, productsInShopListsRepository) {
+  constructor(shopListsRepository, productsInShopListsRepository, updateTotalsForShopListUseCase) {
     super();
     this.shopListsRepository = shopListsRepository;
     this.productsInShopListsRepository = productsInShopListsRepository;
+    this.updateTotalsForShopListUseCase = updateTotalsForShopListUseCase;
   }
 
   run = async (shopList) => {
@@ -14,7 +15,7 @@ export default class SaveShopListUseCase extends UseCase {
       throw new ValidationError('Por favor, digite um nome válido!' );
     }
 
-    new UpdateTotalsForShopListUseCase().getTotals(shopList);
+    this.updateTotalsForShopListUseCase.getTotals(shopList);
 
     let storedShopList;
     if (shopList.id) {

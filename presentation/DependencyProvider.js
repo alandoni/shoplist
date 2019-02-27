@@ -8,6 +8,8 @@ import ProductsInShopListsRepositoryImpl from "../data/repositories/ProductsInSh
 import RemoveProductFromShopListUseCase from "../domain/use-cases/RemoveProductFromShopListUseCase";
 import UpdateProductInShopListUseCase from "../domain/use-cases/UpdateProductInShopListUseCase";
 import AddProductToShopListUseCase from "../domain/use-cases/AddProductToShopListUseCase";
+import UpdateTotalsForOrderUseCase from "../domain/use-cases/UpdateTotalsForOrderUseCase";
+import UpdateTotalsForShopListUseCase from "../domain/use-cases/UpdateTotalsForShopListUseCase";
 
 export default class DependencyProvider {
   /** --- Use cases --- **/
@@ -26,25 +28,29 @@ export default class DependencyProvider {
   static instantiateSaveShopListUseCase() {
     return new SaveShopListUseCase(
       DependencyProvider.instantiateShopListsRepositoryImpl(),
-      DependencyProvider.instantiateProductsInShopListsRepositoryImpl());
+      DependencyProvider.instantiateProductsInShopListsRepositoryImpl(),
+      DependencyProvider.instantiateUpdateTotalsForShopListUseCase());
   }
 
   static instantiateAddProductToShopListUseCase() {
     return new AddProductToShopListUseCase(
       DependencyProvider.instantiateShopListsRepositoryImpl(),
-      DependencyProvider.instantiateProductsInShopListsRepositoryImpl());
+      DependencyProvider.instantiateProductsInShopListsRepositoryImpl(),
+      DependencyProvider.instantiateUpdateTotalsForShopListUseCase());
   }
 
   static instantiateUpdateProductInShopListUseCase() {
     return new UpdateProductInShopListUseCase(
       DependencyProvider.instantiateShopListsRepositoryImpl(),
-      DependencyProvider.instantiateProductsInShopListsRepositoryImpl());
+      DependencyProvider.instantiateProductsInShopListsRepositoryImpl(),
+      DependencyProvider.instantiateUpdateTotalsForShopListUseCase());
   }
 
   static instantiateRemoveProductFromShopListUseCase() {
     return new RemoveProductFromShopListUseCase(
       DependencyProvider.instantiateShopListsDAO(),
-      DependencyProvider.instantiateProductsInShopListsRepositoryImpl());
+      DependencyProvider.instantiateProductsInShopListsRepositoryImpl(),
+      DependencyProvider.instantiateUpdateTotalsForShopListUseCase());
   }
 
   static instantiateSaveCategoryUseCase() {
@@ -84,25 +90,37 @@ export default class DependencyProvider {
   static instantiateSaveOrderUseCase() {
     return new SaveOrderUseCase(
       DependencyProvider.instantiateOrdersRepositoryImpl(),
-      DependencyProvider.instantiateProductsInOrderRepositoryImpl());
+      DependencyProvider.instantiateProductsInOrderRepositoryImpl(),
+      DependencyProvider.instantiateUpdateTotalsForOrderUseCase());
   }
 
   static instantiateAddProductToOrderUseCase() {
     return new AddProductToOrderUseCase(
       DependencyProvider.instantiateOrdersRepositoryImpl(),
-      DependencyProvider.instantiateProductsInOrderRepositoryImpl());
+      DependencyProvider.instantiateProductsInOrderRepositoryImpl(),
+      DependencyProvider.instantiateUpdateTotalsForOrderUseCase());
   }
 
   static instantiateUpdateProductInOrderUseCase() {
     return new UpdateProductInOrderUseCase(
       DependencyProvider.instantiateOrdersRepositoryImpl(),
-      DependencyProvider.instantiateProductsInOrderRepositoryImpl());
+      DependencyProvider.instantiateProductsInOrderRepositoryImpl(),
+      DependencyProvider.instantiateUpdateTotalsForOrderUseCase());
   }
 
   static instantiateRemoveProductFromOrderUseCase() {
     return new RemoveProductFromOrderUseCase(
       DependencyProvider.instantiateOrdersRepositoryImpl(),
-      DependencyProvider.instantiateProductsInOrderRepositoryImpl());
+      DependencyProvider.instantiateProductsInOrderRepositoryImpl(),
+      DependencyProvider.instantiateUpdateTotalsForOrderUseCase());
+  }
+
+  static instantiateUpdateTotalsForOrderUseCase() {
+    return new UpdateTotalsForOrderUseCase(DependencyProvider.instantiateOrdersRepositoryImpl());
+  }
+
+  static instantiateUpdateTotalsForShopListUseCase() {
+    return new UpdateTotalsForShopListUseCase(DependencyProvider.instantiateShopListsRepositoryImpl());
   }
 
   /** --- Repositories --- **/

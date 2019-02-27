@@ -3,10 +3,11 @@ import UpdateTotalsForOrderUseCase from './UpdateTotalsForOrderUseCase';
 import ValidationError from '../ValidationError';
 
 export default class SaveOrderUseCase extends UseCase {
-  constructor(ordersRepository, productsInOrderRepository) {
+  constructor(ordersRepository, productsInOrderRepository, updateTotalsForOrderUseCase) {
     super();
     this.ordersRepository = ordersRepository;
     this.productsInOrderRepository = productsInOrderRepository;
+    this.updateTotalsForOrderUseCase = updateTotalsForOrderUseCase;
   }
 
   run = async (order) => {
@@ -14,7 +15,7 @@ export default class SaveOrderUseCase extends UseCase {
       throw new ValidationError('Por favor, digite um nome válido!' );
     }
 
-    new UpdateTotalsForOrderUseCase().getTotals(order);
+    this.updateTotalsForOrderUseCase.getTotals(order);
 
     let storedOrder;
     if (order.id) {

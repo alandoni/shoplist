@@ -2,10 +2,11 @@ import UpdateTotalsForShopListUseCase from './UpdateTotalsForShopListUseCase';
 import UseCase from './UseCase';
 
 export default class RemoveProductFromShopListUseCase extends UseCase {
-  constructor(shopListsRepository, productsInShopListsRepository) {
+  constructor(shopListsRepository, productsInShopListsRepository, updateTotalsForShopListUseCase) {
     super();
     this.shopListsRepository = shopListsRepository;
     this.productsInShopListsRepository = productsInShopListsRepository;
+    this.updateTotalsForShopListUseCase = updateTotalsForShopListUseCase;
   }
 
   run = async (product) => {
@@ -13,6 +14,6 @@ export default class RemoveProductFromShopListUseCase extends UseCase {
     const products = await this.productsInShopListsRepository.getByShopListId(product.shopListId);
     const shopList = await this.shopListsRepository.getById(product.shopListId);
     shopList.products = products;
-    new UpdateTotalsForShopListUseCase(this.shopListsRepository).execute(shopList);
+    this.updateTotalsForShopListUseCase.execute(shopList);
   }
 }
