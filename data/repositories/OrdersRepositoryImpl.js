@@ -1,10 +1,9 @@
-import OrdersDAO from '../database/OrdersDAO';
 import OrdersRepository from '../../domain/repositories/OrdersRepository';
 
 export default class OrdersRepositoryImpl extends OrdersRepository {
-  constructor() {
+  constructor(dataStore) {
     super();
-    this.dataStore = new OrdersDAO();
+    this.dataStore = dataStore;
   }
 
   async getAll() {

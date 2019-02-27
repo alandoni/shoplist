@@ -5,6 +5,7 @@ import ProductsRepositoryImpl from '../../data/repositories/ProductsRepositoryIm
 import CategoriesRepositoryImpl from '../../data/repositories/CategoriesRepositoryImpl';
 import SaveProductUseCase from '../../domain/use-cases/SaveProductUseCase';
 import Product from '../../data/entities/Product';
+import DependencyProvider from '../DependencyProvider';
 
 export default class NewProductPresenter extends StateObservable {
   constructor(observer, id) {
@@ -19,7 +20,7 @@ export default class NewProductPresenter extends StateObservable {
   }
 
   async getAllCategories() {
-    this.state.categories = await new GetAllCategoriesUseCase(new CategoriesRepositoryImpl()).execute();
+    this.state.categories = await DependencyProvider.instantiateGetAllCategoriesUseCase().execute();
 
     if (this.state.categories) {
       this.state.category = this.state.categories[0];
@@ -28,7 +29,7 @@ export default class NewProductPresenter extends StateObservable {
 
   async requestProduct() {
     if (this.state.product.id) {
-      this.state.product = await new GetProductByIdUseCase(new ProductsRepositoryImpl()).execute(this.state.product.id);
+      this.state.product = await DependencyProvider.instantiateGetProductByIdUseCase().execute(this.state.product.id);
     }
   }
 
@@ -44,7 +45,7 @@ export default class NewProductPresenter extends StateObservable {
   async saveProduct() {
     this.state.isLoading = true;
     this.notifyObservers(this.state);
-    this.state.product = await new SaveProductUseCase(new ProductsRepositoryImpl()).execute(new Product(
+    this.state.product = await DependencyProvider.instantiateSaveProductUseCase().execute(new Product(
       this.state.product.name,
       this.state.product.value,
       this.state.product.notes,

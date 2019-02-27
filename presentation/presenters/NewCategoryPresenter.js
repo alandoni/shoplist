@@ -1,7 +1,6 @@
 import StateObservable from '../StateObservable';
-import SaveCategoryUseCase from '../../domain/use-cases/SaveCategoryUseCase';
-import CategoriesRepositoryImpl from '../../data/repositories/CategoriesRepositoryImpl';
 import Category from '../../data/entities/Category';
+import DependencyProvider from '../DependencyProvider';
 
 export default class NewCategoryPresenter extends StateObservable {
   constructor(observer, id) {
@@ -16,7 +15,7 @@ export default class NewCategoryPresenter extends StateObservable {
   async saveCategory() {
     this.state.isLoading = true;
     this.notifyObservers(this.state);
-    this.state.category = await new SaveCategoryUseCase(new CategoriesRepositoryImpl()).execute(this.state.category);
+    this.state.category = await DependencyProvider.instantiateSaveCategoryUseCase().execute(this.state.category);
     this.state.isLoading = false;
     this.notifyObservers(this.state);
   }

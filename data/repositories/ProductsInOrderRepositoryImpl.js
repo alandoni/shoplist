@@ -1,10 +1,9 @@
-import ProductsInOrdersDAO from '../database/ProductsInOrdersDAO';
 import ProductsInOrdersRepository from '../../domain/repositories/ProductsInOrderRepository';
 
 export default class ProductsInOrderRepositoryImpl extends ProductsInOrdersRepository {
-  constructor() {
+  constructor(dataStore) {
     super();
-    this.dataStore = new ProductsInOrdersDAO();
+    this.dataStore = dataStore;
   }
 
   async getById(id) {

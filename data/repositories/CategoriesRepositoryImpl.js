@@ -1,10 +1,9 @@
-import CategoriesDAO from '../database/CategoriesDAO';
 import CategoriesRepository from '../../domain/repositories/CategoriesRepository';
 
 export default class CategoriesRepositoryImpl extends CategoriesRepository {
-  constructor() {
+  constructor(dataStore) {
     super();
-    this.dataStore = new CategoriesDAO();
+    this.dataStore = dataStore;
   }
 
   async getAll() {

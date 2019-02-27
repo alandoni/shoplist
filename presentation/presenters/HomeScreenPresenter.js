@@ -1,7 +1,5 @@
-import GetAllShopListsUseCase from '../../domain/use-cases/GetAllShopListsUseCase';
-import RemoveShopListUseCase from '../../domain/use-cases/RemoveShopListUseCase';
-import ShopListsRepositoryImpl from '../../data/repositories/ShopListsRepositoryImpl';
 import StateObservable from '../StateObservable';
+import DependencyProvider from '../DependencyProvider';
 
 export default class HomeScreenPresenter extends StateObservable {
   constructor(observer) {
@@ -16,7 +14,7 @@ export default class HomeScreenPresenter extends StateObservable {
     this.state.isLoading = true;
     this.notifyObservers(this.state);
     try {
-      this.state.shopLists = await new GetAllShopListsUseCase(new ShopListsRepositoryImpl()).execute();
+      this.state.shopLists = await DependencyProvider.instantiateGetAllShopListsUseCase().execute();
       this.state.refresh = !this.state.refresh;      
     } catch (error) {
       this.state.error = error.message;
@@ -29,7 +27,7 @@ export default class HomeScreenPresenter extends StateObservable {
     this.state.isLoading = true;
     this.notifyObservers(this.state);
     try {
-      await new RemoveShopListUseCase(new ShopListsRepositoryImpl()).execute(shopList.id);
+      await DependencyProvider.instantiateRemoveShopListUseCase().execute(shopList.id);
       this.state.shopLists = this.state.shopLists.filter(value => value.id !== shopList.id);
       this.state.refresh = !this.state.refresh;    
     } catch (error) {

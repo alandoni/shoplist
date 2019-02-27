@@ -1,10 +1,9 @@
-import ProductsInShopListsDAO from '../database/ProductsInShopListsDAO';
 import ProductsInShopListsRepository from '../../domain/repositories/ProductsInShopListsRepository';
 
 export default class ProductsInShopListsRepositoryImpl extends ProductsInShopListsRepository {
-  constructor() {
+  constructor(dataStore) {
     super();
-    this.dataStore = new ProductsInShopListsDAO();
+    this.dataStore = dataStore;
   }
 
   async getById(id) {

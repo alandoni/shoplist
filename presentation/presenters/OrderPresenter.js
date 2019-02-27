@@ -1,17 +1,8 @@
 import StateObservable from '../StateObservable';
-import ShopListsRepositoryImpl from '../../data/repositories/ShopListsRepositoryImpl';
-import OrdersRepositoryImpl from '../../data/repositories/OrdersRepositoryImpl';
-import GetShopListByIdUseCase from '../../domain/use-cases/GetShopListByIdUseCase';
-import ProductsInShopListsRepositoryImpl from '../../data/repositories/ProductsInShopListsRepositoryImpl';
-import ProductsInOrderRepositoryImpl from '../../data/repositories/ProductsInOrderRepositoryImpl';
-import GetOrderByIdUseCase from '../../domain/use-cases/GetOrderByIdUseCase';
-import SaveOrderUseCase from '../../domain/use-cases/SaveOrderUseCase';
-import AddProductToOrderUseCase from '../../domain/use-cases/AddProductToOrderUseCase';
-import UpdateProductInOrderUseCase from '../../domain/use-cases/UpdateProductInOrderUseCase';
-import RemoveProductFromOrderUseCase from '../../domain/use-cases/RemoveProductFromOrderUseCase';
 import Order from '../entities/Order';
 import ProductInList from '../entities/ProductInList';
 import UpdateProductInList from '../entities/UpdateProductInList';
+import DependencyProvider from '../DependencyProvider';
 
 export default class OrderPresenter extends StateObservable {
   constructor(observer, id, shopListId, name) {
@@ -29,15 +20,9 @@ export default class OrderPresenter extends StateObservable {
     this.state.isLoading = true;
     this.notifyObservers(this.state);
     if (this.state.order.id) {
-      this.state.order = await new GetOrderByIdUseCase(
-        new OrdersRepositoryImpl(),
-        new ProductsInOrderRepositoryImpl(),
-      ).execute(this.state.order.id);
+      this.state.order = await DependencyProvider.instantiateGetOrderByIdUseCase().execute(this.state.order.id);
     } else {
-      const shopList = await new GetShopListByIdUseCase(
-        new ShopListsRepositoryImpl(),
-        new ProductsInShopListsRepositoryImpl(),
-      ).execute(this.state.order.id);
+      const shopList = await DependencyProvider.instantiateGetShopListByIdUseCase().execute(this.state.order.id);
       this.state.order.shopListId = shopList.id;
       this.state.order.name = shopList.name;
       this.state.order.products = shopList.products;
@@ -52,10 +37,7 @@ export default class OrderPresenter extends StateObservable {
   async saveOrder() {
     this.state.isLoading = true;
     this.notifyObservers(this.state);
-    this.state.order = await new SaveOrderUseCase(
-      new OrdersRepositoryImpl(),
-      new ProductsInOrderRepositoryImpl(),
-    ).execute(this.state.order);
+    this.state.order = await DependencyProvider.instantiateSaveOrderUseCase().execute(this.state.order);
     this.state.isLoading = true;
     this.state.refresh = !this.state.refresh;
     this.notifyObservers(this.state);
@@ -67,10 +49,7 @@ export default class OrderPresenter extends StateObservable {
 
     const newProduct = new ProductInList(product.id, this.state.order.id, 1, product.value);
     this.state.order.products.push(newProduct);
-    await new AddProductToOrderUseCase(
-      new OrdersRepositoryImpl(),
-      new ProductsInOrderRepositoryImpl(),
-    ).execute(newProduct);
+    await DependencyProvider.instantiateAddProductToOrderUseCase().execute(newProduct);
 
     this.state.isLoading = false;
     this.state.refresh = !this.state.refresh;
@@ -84,10 +63,7 @@ export default class OrderPresenter extends StateObservable {
     const newProduct = new UpdateProductInList(product.id, amount, value);
     this.state.order.products.setElement(newProduct, element => element.id === newProduct.id);
 
-    await new UpdateProductInOrderUseCase(
-      new OrdersRepositoryImpl(),
-      new ProductsInOrderRepositoryImpl(),
-    ).execute(newProduct);
+    await DependencyProvider.instantiateUpdateProductInOrderUseCase().execute(newProduct);
 
     this.state.isLoading = false;
     this.state.refresh = !this.state.refresh;
@@ -98,10 +74,7 @@ export default class OrderPresenter extends StateObservable {
     this.state.isLoading = true;
     this.notifyObservers(this.state);
 
-    await new RemoveProductFromOrderUseCase(
-      new OrdersRepositoryImpl(),
-      new ProductsInOrderRepositoryImpl(),
-    ).execute(product.id);
+    await DependencyProvider.instantiateRemoveProductFromOrderUseCase().execute(product.id);
     this.state.order.products = this.state.order.products.filter(value => value.id !== product.id);
 
     this.state.isLoading = false;

@@ -3,6 +3,7 @@ import SearchProductsByNameUseCase from '../../domain/use-cases/SearchProductsBy
 import RemoveProductUseCase from '../../domain/use-cases/RemoveProductUseCase';
 import StateObservable from '../StateObservable';
 import GetAllProductsUseCase from '../../domain/use-cases/GetAllProductsUseCase';
+import DependencyProvider from '../DependencyProvider';
 
 export default class SearchProductPresenter extends StateObservable {
   constructor(observer) {
@@ -20,11 +21,9 @@ export default class SearchProductPresenter extends StateObservable {
     this.state.isLoading = true;
     this.notifyObservers(this.state);
     if (!this.state.search || this.state.search.length === 0) {
-      this.state.products = await new GetAllProductsUseCase(new ProductsRepositoryImpl()).execute();
+      this.state.products = await DependencyProvider.instantiateGetAllProductsUseCase().execute();
     } else {
-      this.state.products = await new SearchProductsByNameUseCase(
-        new ProductsRepositoryImpl(),
-      ).execute(this.state.search);
+      this.state.products = await DependencyProvider.instantiateSearchProductsByNameUseCase().execute(this.state.search);
     }
     this.state.isLoading = false;
     this.state.refresh = !this.state.refresh;
@@ -39,7 +38,7 @@ export default class SearchProductPresenter extends StateObservable {
   async deleteProduct(product) {
     this.state.isLoading = true;
     this.notifyObservers(this.state);
-    await new RemoveProductUseCase(new ProductsRepositoryImpl()).execute(product.id);
+    await DependencyProvider.instantiateRemoveProductUseCase().execute(product.id);
     this.state.products = this.state.products.filter(value => value.id !== product.id);
     this.state.isLoading = false;
     this.state.refresh = !this.state.refresh;

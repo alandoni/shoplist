@@ -1,10 +1,9 @@
-import ProductsDAO from '../database/ProductsDAO';
 import ProductsRepository from '../../domain/repositories/ProductsRepository';
 
 export default class ProductsRepositoryImpl extends ProductsRepository {
-  constructor() {
+  constructor(dataStore) {
     super();
-    this.dataStore = new ProductsDAO();
+    this.dataStore = dataStore;
   }
 
   async getAll() {

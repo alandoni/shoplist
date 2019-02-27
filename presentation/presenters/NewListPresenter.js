@@ -1,14 +1,8 @@
 import StateObservable from '../StateObservable';
-import ShopListsRepositoryImpl from '../../data/repositories/ShopListsRepositoryImpl';
-import SaveShopListUseCase from '../../domain/use-cases/SaveShopListUseCase';
-import ProductsInShopListsRepositoryImpl from '../../data/repositories/ProductsInShopListsRepositoryImpl';
-import AddProductToShopListUseCase from '../../domain/use-cases/AddProductToShopListUseCase';
-import GetShopListByIdUseCase from '../../domain/use-cases/GetShopListByIdUseCase';
-import RemoveProductFromShopListUseCase from '../../domain/use-cases/RemoveProductFromShopListUseCase';
-import UpdateProductInShopListUseCase from '../../domain/use-cases/UpdateProductInShopListUseCase';
 import UpdateProductInList from '../entities/UpdateProductInList';
 import ShopList from '../entities/ShopList';
 import ProductInList from '../entities/ProductInList';
+import DependencyProvider from '../DependencyProvider';
 
 export default class NewListPresenter extends StateObservable {
   constructor(observer, name, id) {
@@ -26,10 +20,7 @@ export default class NewListPresenter extends StateObservable {
     if (this.state.shopList.id) {
       this.state.isLoading = true;
       this.notifyObservers(this.state);
-      this.state.shopList = await new GetShopListByIdUseCase(
-        new ShopListsRepositoryImpl(),
-        new ProductsInShopListsRepositoryImpl(),
-      ).execute(this.state.shopList.id);
+      this.state.shopList = await DependencyProvider.instantiateGetShopListByIdUseCase().execute(this.state.shopList.id);
     }
     this.state.isLoading = false;
     this.state.refresh = !this.state.refresh;
@@ -39,10 +30,7 @@ export default class NewListPresenter extends StateObservable {
   async saveShopList() {
     this.state.isLoading = true;
     this.notifyObservers(this.state);
-    this.state.shopList = await new SaveShopListUseCase(
-      new ShopListsRepositoryImpl(),
-      new ProductsInShopListsRepositoryImpl(),
-    ).execute(this.state.shopList);
+    this.state.shopList = await DependencyProvider.instantiateSaveShopListUseCase().execute(this.state.shopList);
     this.state.isLoading = false;
     this.notifyObservers(this.state);
   }
@@ -53,10 +41,7 @@ export default class NewListPresenter extends StateObservable {
 
     const newProduct = new ProductInList(product.id, this.state.shopList.id, 1, product.value);
     this.state.shopList.products.push(newProduct);
-    await new AddProductToShopListUseCase(
-      new ShopListsRepositoryImpl(),
-      new ProductsInShopListsRepositoryImpl(),
-    ).execute(newProduct);
+    await DependencyProvider.instantiateAddProductToShopListUseCase().execute(newProduct);
 
     this.state.isLoading = false;
     this.state.refresh = !this.state.refresh;
@@ -70,10 +55,7 @@ export default class NewListPresenter extends StateObservable {
     const newProduct = new UpdateProductInList(product.id, amount, value);
     this.state.shopList.products.setElement(newProduct, element => element.id === newProduct.id);
 
-    await new UpdateProductInShopListUseCase(
-      new ShopListsRepositoryImpl(),
-      new ProductsInShopListsRepositoryImpl(),
-    ).execute(newProduct);
+    await DependencyProvider.instantiateUpdateProductInShopListUseCase().execute(newProduct);
 
     this.state.isLoading = false;
     this.state.refresh = !this.state.refresh;
@@ -84,10 +66,7 @@ export default class NewListPresenter extends StateObservable {
     this.state.isLoading = true;
     this.notifyObservers(this.state);
 
-    await new RemoveProductFromShopListUseCase(
-      new ShopListsRepositoryImpl(),
-      new ProductsInShopListsRepositoryImpl(),
-    ).execute(product.id);
+    await DependencyProvider.instantiateRemoveProductFromShopListUseCase().execute(product.id);
     this.state.shopList.products = this.state.shopList.products.filter(value => value.id !== product.id);
 
     this.state.isLoading = false;

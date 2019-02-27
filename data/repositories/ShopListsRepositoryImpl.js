@@ -2,9 +2,9 @@ import ShopListsDAO from '../database/ShopListsDAO';
 import ShopListsRepository from '../../domain/repositories/ShopListsRepository';
 
 export default class ShopListsRepositoryImpl extends ShopListsRepository {
-  constructor() {
+  constructor(dataStore) {
     super();
-    this.dataStore = new ShopListsDAO();
+    this.dataStore = dataStore;
   }
 
   async getAll() {
